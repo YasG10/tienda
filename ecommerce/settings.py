@@ -199,4 +199,16 @@ CLOUDINARY_STORAGE = {
     "API_SECRET": os.environ.get("CLOUDINARY_API_SECRET"),
 }
 
-DEFAULT_FILE_STORAGE = "cloudinary_storage.storage.MediaCloudinaryStorage"
+STORAGES = {
+    # Para archivos Media (imágenes de productos, avatares, etc.) -> Cloudinary
+    "default": {
+        "BACKEND": "cloudinary_storage.storage.MediaCloudinaryStorage",
+    },
+    # Para archivos Estáticos (CSS, JS) -> WhiteNoise (ya lo tienes configurado en middleware)
+    "staticfiles": {
+        "BACKEND": "whitenoise.storage.CompressedManifestStaticFilesStorage",
+    },
+}
+
+# También es recomendable definir esto para asegurar las URLs públicas
+MEDIA_URL = '/media/'
