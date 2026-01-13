@@ -152,9 +152,15 @@ STATIC_URL = 'static/'
 # Static files directories
 STATICFILES_DIRS = [BASE_DIR / 'static']
 
-# # Media files (user-uploaded)
-# MEDIA_URL = '/media/'
-# MEDIA_ROOT = BASE_DIR / 'media'
+
+# Cloudinary storage for all media files
+import os
+CLOUDINARY_STORAGE = {
+    'CLOUD_NAME': os.environ.get('CLOUDINARY_CLOUD_NAME', 'dhvqptmhw'),
+    'API_KEY': os.environ.get('CLOUDINARY_API_KEY', '139433438828628'),
+    'API_SECRET': os.environ.get('CLOUDINARY_API_SECRET', 'JcwJR6l6Qpoh4n5q0og7qjKX7pc'),
+}
+DEFAULT_FILE_STORAGE = 'cloudinary_storage.storage.MediaCloudinaryStorage'
 
 # Default primary key field type
 # https://docs.djangoproject.com/en/5.2/ref/settings/#default-auto-field
