@@ -1,0 +1,27 @@
+{% extends "base.html" %}
+{% block title %}Sobre Nosotros{% endblock %}
+{% block meta %}
+<meta name="description" content="Conoce más sobre nuestro equipo, misión y valores.">
+{% endblock %}
+{% block content %}
+<section class="max-w-3xl mx-auto py-12 px-4">
+  <h1 class="text-4xl font-bold mb-6 text-center">Sobre Nosotros</h1>
+  <div class="bg-white/70 rounded-xl shadow-lg p-8 backdrop-blur-md">
+    <p class="mb-4 text-lg">Somos un equipo apasionado por la tecnología y el comercio electrónico, comprometidos con ofrecer la mejor experiencia de compra online. Nuestra misión es acercar productos de calidad a todos los rincones, con atención personalizada y un servicio confiable.</p>
+    <p class="mb-4">Creemos en la innovación, la transparencia y el trato humano. Cada cliente es importante para nosotros y trabajamos día a día para superar sus expectativas.</p>
+    <ul class="list-disc pl-6 mb-4">
+      <li>Misión: Hacer el ecommerce accesible, seguro y agradable para todos.</li>
+      <li>Visión: Ser referentes en atención y confianza en el sector digital.</li>
+      <li>Valores: Honestidad, innovación, cercanía y mejora continua.</li>
+    </ul>
+    <div class="flex flex-col md:flex-row gap-6 mt-8 items-center justify-center">
+      <img src="https://randomuser.me/api/portraits/men/32.jpg" alt="Fundador" class="w-28 h-28 rounded-full shadow-lg border-4 border-white">
+      <div>
+        <h2 class="text-xl font-semibold">Andrés García</h2>
+        <p class="text-sm text-gray-600">Fundador & CEO</p>
+        <p class="mt-2 text-gray-700">"Nuestro compromiso es tu satisfacción. ¡Gracias por confiar en nosotros!"</p>
+      </div>
+    </div>
+  </div>
+</section>
+{% endblock %}

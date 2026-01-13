@@ -21,6 +21,7 @@ class OrderService:
 
         total = 0
 
+
         for item in validated_data['items']:
             product = get_object_or_404(Product, id=item['product_id'], is_active=True)
 
@@ -30,14 +31,17 @@ class OrderService:
             product.stock -= item['quantity']
             product.save()
 
+            # Usar el precio con descuento si aplica
+            price = product.price_with_discount
+
             OrderItem.objects.create(
                 order=order,
                 product=product,
                 quantity=item['quantity'],
-                price=product.price
+                price=price
             )
 
-            total += product.price * item['quantity']
+            total += price * item['quantity']
 
         order.total_amount = total
         order.save()

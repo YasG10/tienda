@@ -1,11 +1,11 @@
 {% extends 'base.html' %}
 {% load static %}
 
-{% block title %}Mi Tienda — Bienvenido{% endblock %}
+{% block title %}Fluxa shop — Bienvenido{% endblock %}
 
 {% block meta %}
-  <meta name="description" content="Descubre productos seleccionados con la mejor calidad y envío rápido en Mi Tienda." />
-  <meta property="og:title" content="Mi Tienda — Productos seleccionados" />
+  <meta name="description" content="Descubre productos seleccionados con la mejor calidad y envío rápido en Fluxa shop." />
+  <meta property="og:title" content="Fluxa shop — Productos seleccionados" />
   <meta property="og:description" content="Descubre productos seleccionados con la mejor calidad y envío rápido." />
   <meta property="og:type" content="website" />
   <meta property="og:image" content="{% static 'img/og-image.jpg' %}" />
@@ -21,7 +21,7 @@
         
         <div class="hero-copy max-w-xl mx-auto lg:mx-0 text-center lg:text-left">
           <h1 class="text-4xl tracking-tight font-extrabold text-slate-900 sm:text-5xl md:text-6xl">
-            Bienvenido a <span class="text-indigo-600">Mi Tienda</span>
+            Bienvenido a <span class="text-indigo-600">Fluxa shop</span>
           </h1>
           <p class="mt-6 text-lg text-slate-600 leading-relaxed">
             Descubre una selección curada de productos donde la calidad se une al valor. Disfruta de una experiencia de compra simple, rápida y totalmente confiable.
@@ -31,7 +31,7 @@
             <a href="{% url 'catalog:product_list' %}" class="inline-flex items-center justify-center px-6 py-3 border border-transparent text-base font-medium rounded-md shadow-sm text-white bg-indigo-600 hover:bg-indigo-700 transition-colors">
               Ver catálogo
             </a>
-            <a href="{% url 'catalog:product_list' %}?q=oferta" class="inline-flex items-center justify-center px-6 py-3 border border-slate-300 text-base font-medium rounded-md text-slate-700 bg-white hover:bg-slate-50 transition-colors">
+            <a href="{% url 'catalog:ofertas' %}" class="inline-flex items-center justify-center px-6 py-3 border border-slate-300 text-base font-medium rounded-md text-slate-700 bg-white hover:bg-slate-50 transition-colors">
               Ver Ofertas
             </a>
           </div>
@@ -55,7 +55,7 @@
         <div class="hero-media hidden lg:block relative">
             <img 
               src="https://images.unsplash.com/photo-1441986300917-64674bd600d8?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=1170&q=80" 
-              alt="Experiencia de compra en Mi Tienda" 
+              alt="Experiencia de compra en Fluxa shop" 
               class="w-full h-auto rounded-2xl shadow-xl object-cover transform hover:scale-105 transition duration-500 ease-in-out"
               style="max-height: 600px;"
             />
@@ -178,7 +178,7 @@
   {
     "@context": "https://schema.org",
     "@type": "Organization",
-    "name": "Mi Tienda",
+    "name": "Fluxa shop",
     "url": "{{ request.build_absolute_uri }}",
     "logo": "{% static 'img/logo.svg' %}",
     "sameAs": [

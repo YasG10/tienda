@@ -18,6 +18,9 @@ from django.contrib import admin
 from django.urls import path, include
 from core import views as core_views
 from core.keepalive import keep_alive
+from core.views_about import sobre_nosotros
+from core.views_faq import faq
+from core.views_admin import admin_dashboard
 from orders.views import telegram_webhook
 from django.conf import settings
 from django.conf.urls.static import static
@@ -29,6 +32,7 @@ from rest_framework_simplejwt.views import (
 
 urlpatterns = [
     path('admin/', admin.site.urls),
+    path('panel-admin/', admin_dashboard, name='admin_dashboard'),
     path('api/auth/login/', TokenObtainPairView.as_view()),
     path('api/auth/refresh/', TokenRefreshView.as_view()),
     
@@ -39,6 +43,8 @@ urlpatterns = [
 
     path('', core_views.landing, name='home'),
     path('newsletter/', core_views.newsletter_signup, name='home_newsletter'),
+    path('sobre-nosotros/', sobre_nosotros, name='sobre_nosotros'),
+    path('preguntas-frecuentes/', faq, name='faq'),
     path('keep-alive/', keep_alive, name='keep_alive'),
     path('telegram/webhook/', telegram_webhook),
     path('', include(('catalog.urls_web', 'catalog'), namespace='catalog')),

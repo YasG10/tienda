@@ -1,0 +1,55 @@
+{% extends "base.html" %}
+{% block title %}Panel de Administración{% endblock %}
+{% block content %}
+<section class="max-w-5xl mx-auto py-12 px-4">
+  <h1 class="text-4xl font-bold mb-8 text-center">Panel de Administración</h1>
+  <div class="grid grid-cols-1 md:grid-cols-3 gap-8 mb-10">
+    <div class="bg-white/80 rounded-xl shadow p-6 text-center">
+      <div class="text-3xl font-bold text-indigo-600">{{ productos }}</div>
+      <div class="text-lg text-slate-700">Productos</div>
+      <a href="/admin/catalog/product/" class="text-indigo-500 hover:underline text-sm">Gestionar</a>
+    </div>
+    <div class="bg-white/80 rounded-xl shadow p-6 text-center">
+      <div class="text-3xl font-bold text-indigo-600">{{ categorias }}</div>
+      <div class="text-lg text-slate-700">Categorías</div>
+      <a href="/admin/catalog/category/" class="text-indigo-500 hover:underline text-sm">Gestionar</a>
+    </div>
+    <div class="bg-white/80 rounded-xl shadow p-6 text-center">
+      <div class="text-3xl font-bold text-indigo-600">{{ pedidos }}</div>
+      <div class="text-lg text-slate-700">Pedidos</div>
+      <a href="/admin/orders/order/" class="text-indigo-500 hover:underline text-sm">Gestionar</a>
+    </div>
+  </div>
+  <div class="bg-white/80 rounded-xl shadow p-6">
+    <h2 class="text-2xl font-semibold mb-4">Pedidos recientes</h2>
+    <div class="overflow-x-auto">
+      <table class="min-w-full text-sm">
+        <thead>
+          <tr class="text-left text-slate-600 border-b">
+            <th class="py-2 px-3">ID</th>
+            <th class="py-2 px-3">Cliente</th>
+            <th class="py-2 px-3">Fecha</th>
+            <th class="py-2 px-3">Estado</th>
+            <th class="py-2 px-3">Total</th>
+            <th class="py-2 px-3">Ver</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for pedido in pedidos_recientes %}
+          <tr class="border-b hover:bg-slate-50">
+            <td class="py-2 px-3 font-mono">#{{ pedido.id }}</td>
+            <td class="py-2 px-3">{{ pedido.user }}</td>
+            <td class="py-2 px-3">{{ pedido.created_at|date:"d/m/Y H:i" }}</td>
+            <td class="py-2 px-3">{{ pedido.status }}</td>
+            <td class="py-2 px-3">${{ pedido.total }}</td>
+            <td class="py-2 px-3"><a href="/admin/orders/order/{{ pedido.id }}/change/" class="text-indigo-500 hover:underline">Ver</a></td>
+          </tr>
+          {% empty %}
+          <tr><td colspan="6" class="py-4 text-center text-slate-400">No hay pedidos recientes.</td></tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+  </div>
+</section>
+{% endblock %}
