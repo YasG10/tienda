@@ -26,7 +26,12 @@ SECRET_KEY = 'django-insecure-ybow(2u11kiu5f#g8$ot%y2-%iuei-8+ftli9(!f5h^9#g8y_n
 DEBUG = False
 
 
-ALLOWED_HOSTS = []
+ALLOWED_HOSTS = [
+    "tienda-lrl5.onrender.com",
+    ".onrender.com",
+    "localhost",
+    "127.0.0.1",
+]
 
 
 # Application definition
