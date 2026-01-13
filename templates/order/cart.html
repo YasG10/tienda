@@ -1,0 +1,107 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block title %}Mi Carrito — Mi Tienda{% endblock %}
+
+{% block content %}
+<div class="max-w-7xl mx-auto py-10">
+    <h1 class="text-3xl font-extrabold text-slate-900 mb-8 flex items-center gap-3">
+        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" class="w-8 h-8 text-indigo-600">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M15.75 10.5V6a3.75 3.75 0 10-7.5 0v4.5m11.356-1.993l1.263 12c.07.665-.45 1.243-1.119 1.243H4.25a1.125 1.125 0 01-1.12-1.243l1.264-12A1.125 1.125 0 015.513 7.5h12.974c.576 0 1.059.435 1.119 1.007zM8.625 10.5a.375.375 0 11-.75 0 .375.375 0 01.75 0zm7.5 0a.375.375 0 11-.75 0 .375.375 0 01.75 0z" />
+        </svg>
+        Tu Carrito
+    </h1>
+
+    {% if items %}
+    <div class="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start">
+        
+        <div class="lg:col-span-8 space-y-4">
+            {% for it in items %}
+            <div class="group flex flex-col sm:flex-row items-center gap-6 p-5 rounded-2xl bg-white/60 backdrop-blur-md border border-slate-200 hover:shadow-xl hover:shadow-slate-200/50 transition-all duration-300">
+                
+                <div class="w-24 h-24 flex-shrink-0 overflow-hidden rounded-xl bg-slate-100 border border-slate-100">
+                    {% if it.product.image %}
+                        <img src="{{ it.product.image.url }}" alt="{{ it.product.name }}" class="w-full h-full object-cover">
+                    {% else %}
+                        <img src="{% static 'img/product_placeholder.svg' %}" class="w-full h-full object-center opacity-40">
+                    {% endif %}
+                </div>
+
+                <div class="flex-1 text-center sm:text-left">
+                    <h3 class="font-bold text-slate-900 text-lg">{{ it.product.name }}</h3>
+                    <p class="text-slate-500 text-sm mb-2">Precio unitario: ${{ it.product.price }}</p>
+                    
+                    <div class="flex items-center justify-center sm:justify-start gap-4">
+                        <span class="text-xs font-bold uppercase tracking-wider text-slate-400">Cantidad: {{ it.quantity }}</span>
+                        <a href="{% url 'orders:cart_remove' it.product.id %}" class="text-xs font-bold text-rose-500 hover:text-rose-700 flex items-center gap-1 transition-colors">
+                            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" class="w-4 h-4">
+                                <path fill-rule="evenodd" d="M8.75 1A2.75 2.75 0 006 3.75v.443c-.795.077-1.584.176-2.365.298a.75.75 0 10.23 1.482l.149-.022.841 10.518A2.75 2.75 0 007.596 19h4.807a2.75 2.75 0 002.742-2.53l.841-10.52.149.023a.75.75 0 00.23-1.482A41.03 41.03 0 0014 4.193V3.75A2.75 2.75 0 0011.25 1h-2.5zM10 4c.84 0 1.673.025 2.5.075V3.75c0-.69-.56-1.25-1.25-1.25h-2.5c-.69 0-1.25.56-1.25 1.25v.325C8.327 4.025 9.16 4 10 4zM8.58 7.72a.75.75 0 00-1.5.06l.3 7.5a.75.75 0 101.5-.06l-.3-7.5zm4.34.06a.75.75 0 10-1.5-.06l-.3 7.5a.75.75 0 101.5.06l.3-7.5z" clip-rule="evenodd" />
+                            </svg>
+                            Eliminar
+                        </a>
+                    </div>
+                </div>
+
+                <div class="text-right sm:pl-6">
+                    <div class="text-xl font-black text-slate-900">${{ it.total_price }}</div>
+                </div>
+            </div>
+            {% endfor %}
+            
+            <a href="{% url 'catalog:product_list' %}" class="inline-flex items-center gap-2 text-sm font-bold text-indigo-600 hover:text-indigo-700 transition-colors">
+                ← Seguir comprando
+            </a>
+        </div>
+
+        <aside class="lg:col-span-4 sticky top-24">
+            <div class="p-8 rounded-3xl bg-slate-900 text-white shadow-2xl">
+                <h2 class="text-xl font-bold mb-6">Resumen del pedido</h2>
+                
+                <div class="space-y-4 text-slate-300 border-b border-slate-800 pb-6 mb-6">
+                    <div class="flex justify-between">
+                        <span>Subtotal</span>
+                        <span class="text-white font-semibold">${{ total }}</span>
+                    </div>
+                    <div class="flex justify-between">
+                        <span>Envío</span>
+                        <span class="text-emerald-400 font-semibold tracking-wide text-xs uppercase pt-1 italic">Gratis</span>
+                    </div>
+                </div>
+
+                <div class="flex justify-between items-end mb-8">
+                    <span class="text-slate-400">Total a pagar</span>
+                    <span class="text-4xl font-black text-white">${{ total }}</span>
+                </div>
+
+                <a href="{% url 'orders:checkout' %}" class="block w-full text-center bg-indigo-600 hover:bg-indigo-500 text-white font-black py-4 rounded-2xl shadow-lg shadow-indigo-900/20 transition-all transform active:scale-95 mb-4">
+                    Finalizar Compra
+                </a>
+
+                <p class="text-[10px] text-center text-slate-500 uppercase tracking-widest font-bold">
+                    Pago 100% Seguro · SSL Encriptado
+                </p>
+            </div>
+            
+            <div class="mt-4 p-6 rounded-2xl border border-dashed border-slate-300 flex items-center justify-between">
+                <span class="text-sm text-slate-500 font-medium">¿Tienes un cupón?</span>
+                <button class="text-sm font-bold text-indigo-600">Aplicar</button>
+            </div>
+        </aside>
+
+    </div>
+    {% else %}
+    <div class="max-w-md mx-auto text-center py-20">
+        <div class="bg-slate-100 w-24 h-24 rounded-full flex items-center justify-center mx-auto mb-6">
+            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-12 h-12 text-slate-400">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M2.25 3h1.386c.51 0 .955.343 1.087.835l.383 1.437M7.5 14.25a3 3 0 00-3 3h15.75m-12.75-3h11.218c1.121-2.3 2.1-4.684 2.924-7.138a60.114 60.114 0 00-16.536-1.84M7.5 14.25L5.106 5.272M6 20.25a.75.75 0 11-1.5 0 .75.75 0 011.5 0zm12.75 0a.75.75 0 11-1.5 0 .75.75 0 011.5 0z" />
+            </svg>
+        </div>
+        <h2 class="text-2xl font-bold text-slate-900 mb-2">Tu carrito está vacío</h2>
+        <p class="text-slate-500 mb-8">Parece que aún no has añadido nada a tu selección.</p>
+        <a href="{% url 'catalog:product_list' %}" class="bg-slate-900 text-white px-8 py-3 rounded-xl font-bold hover:bg-slate-800 transition">
+            Ir a la tienda
+        </a>
+    </div>
+    {% endif %}
+</div>
+{% endblock %}

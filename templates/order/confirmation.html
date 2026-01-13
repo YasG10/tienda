@@ -1,0 +1,145 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block title %}Orden #{{ order.id }} — Mi Tienda{% endblock %}
+
+{% block content %}
+<div class="max-w-7xl mx-auto py-10">
+    
+    <div class="flex flex-col md:flex-row justify-between items-start md:items-center mb-8 gap-4">
+        <div>
+            <div class="flex items-center gap-3">
+                <h1 class="text-3xl font-black text-slate-900 tracking-tight">Orden #{{ order.id }}</h1>
+                <span class="px-3 py-1 rounded-full text-xs font-bold uppercase tracking-wider 
+                    {% if order.status == 'DELIVERED' %} bg-emerald-100 text-emerald-700 
+                    {% elif order.status == 'CANCELLED' %} bg-rose-100 text-rose-700 
+                    {% else %} bg-indigo-100 text-indigo-700 {% endif %}">
+                    {{ order.get_status_display }}
+                </span>
+            </div>
+            <p class="text-slate-500 mt-1">Realizada el {{ order.created_at|date:"d \d\e F, Y \a \l\a\s H:i" }}</p>
+        </div>
+        <div class="flex gap-3">
+            <button onclick="window.print()" class="flex items-center gap-2 px-4 py-2 bg-white border border-slate-200 rounded-xl text-sm font-bold text-slate-700 hover:bg-slate-50 transition shadow-sm">
+                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" class="w-4 h-4">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M6.72 13.89l-4.47 4.47a.75.75 0 101.06 1.06l4.47-4.47m0 0l4.47 4.47a.75.75 0 101.06-1.06l-4.47-4.47m0 0V2.25" />
+                </svg>
+                Imprimir Recibo
+            </button>
+            <a href="{% url 'orders:invoice' order.id %}" class="flex items-center gap-2 px-4 py-2 bg-indigo-600 rounded-xl text-sm font-bold text-white hover:bg-indigo-700 transition shadow-lg shadow-indigo-100">
+                Descargar Factura (PDF)
+            </a>
+        </div>
+    </div>
+
+    <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
+        
+        <div class="lg:col-span-2 space-y-6">
+            
+            <div class="bg-white/70 backdrop-blur-md rounded-3xl border border-slate-200 overflow-hidden shadow-sm">
+                <div class="p-6 border-b border-slate-100 bg-slate-50/50">
+                    <h3 class="font-bold text-slate-800">Artículos del pedido</h3>
+                </div>
+                <div class="divide-y divide-slate-100">
+                    {% for it in order.items.all %}
+                    <div class="p-6 flex items-center gap-6 group">
+                        <div class="w-20 h-20 bg-slate-100 rounded-2xl overflow-hidden flex-shrink-0 border border-slate-200">
+                            {% if it.product.image %}
+                                <img src="{{ it.product.image.url }}" alt="{{ it.product.name }}" class="w-full h-full object-cover group-hover:scale-110 transition duration-500" />
+                            {% else %}
+                                <div class="w-full h-full flex items-center justify-center text-slate-300">
+                                    <svg class="w-8 h-8" fill="currentColor" viewBox="0 0 24 24"><path d="M21 19V5c0-1.1-.9-2-2-2H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2zM8.5 13.5l2.5 3.01L14.5 12l4.5 6H5l3.5-4.5z"/></svg>
+                                </div>
+                            {% endif %}
+                        </div>
+                        <div class="flex-1">
+                            <h4 class="font-bold text-slate-900">{{ it.product.name }}</h4>
+                            <p class="text-sm text-slate-500">Cantidad: {{ it.quantity }} · Precio: ${{ it.price }}</p>
+                        </div>
+                        <div class="text-right">
+                            <span class="font-black text-slate-900">${{ it.get_subtotal }}</span>
+                        </div>
+                    </div>
+                    {% endfor %}
+                </div>
+            </div>
+
+            <div class="bg-white/70 backdrop-blur-md rounded-3xl border border-slate-200 p-6 shadow-sm">
+                <h3 class="font-bold text-slate-800 mb-4 flex items-center gap-2">
+                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" class="w-5 h-5 text-indigo-600">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M15 10.5a3 3 0 11-6 0 3 3 0 016 0z" />
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M19.5 10.5c0 7.142-7.5 11.25-7.5 11.25S4.5 17.642 4.5 10.5a7.5 7.5 0 1115 0z" />
+                    </svg>
+                    Dirección de Envío
+                </h3>
+                <div class="bg-slate-50 rounded-2xl p-4 border border-slate-100">
+                    <p class="text-slate-700 leading-relaxed">{{ order.address }}</p>
+                    {% if order.notes %}
+                        <div class="mt-4 pt-4 border-t border-slate-200">
+                            <span class="text-[10px] font-bold text-slate-400 uppercase tracking-widest">Notas:</span>
+                            <p class="text-sm text-slate-600 italic mt-1">"{{ order.notes }}"</p>
+                        </div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+
+        <aside class="space-y-6">
+            
+            <div class="bg-slate-900 rounded-3xl p-8 text-white shadow-xl">
+                <h3 class="font-bold mb-8 text-lg">Estado del Pedido</h3>
+                <div class="relative space-y-8 before:absolute before:inset-0 before:ml-3 before:h-full before:w-0.5 before:bg-slate-800">
+                    {% with s=order.status %}
+                    <div class="relative flex items-center gap-4">
+                        <div class="w-6 h-6 rounded-full border-4 border-slate-900 z-10 {% if s == 'PENDING' or s == 'CONFIRMED' or s == 'ON_THE_WAY' or s == 'DELIVERED' %} bg-indigo-500 {% else %} bg-slate-700 {% endif %}"></div>
+                        <span class="text-sm {% if s == 'PENDING' %} font-bold text-white {% else %} text-slate-400 {% endif %}">Pedido recibido</span>
+                    </div>
+                    <div class="relative flex items-center gap-4">
+                        <div class="w-6 h-6 rounded-full border-4 border-slate-900 z-10 {% if s == 'CONFIRMED' or s == 'ON_THE_WAY' or s == 'DELIVERED' %} bg-indigo-500 {% else %} bg-slate-700 {% endif %}"></div>
+                        <span class="text-sm {% if s == 'CONFIRMED' %} font-bold text-white {% else %} text-slate-400 {% endif %}">En preparación</span>
+                    </div>
+                    <div class="relative flex items-center gap-4">
+                        <div class="w-6 h-6 rounded-full border-4 border-slate-900 z-10 {% if s == 'ON_THE_WAY' or s == 'DELIVERED' %} bg-indigo-500 {% else %} bg-slate-700 {% endif %}"></div>
+                        <span class="text-sm {% if s == 'ON_THE_WAY' %} font-bold text-white {% else %} text-slate-400 {% endif %}">En camino</span>
+                    </div>
+                    <div class="relative flex items-center gap-4">
+                        <div class="w-6 h-6 rounded-full border-4 border-slate-900 z-10 {% if s == 'DELIVERED' %} bg-emerald-500 {% else %} bg-slate-700 {% endif %}"></div>
+                        <span class="text-sm {% if s == 'DELIVERED' %} font-bold text-emerald-400 {% else %} text-slate-400 {% endif %}">Entregado</span>
+                    </div>
+                    {% endwith %}
+                </div>
+            </div>
+
+            <div class="bg-white rounded-3xl border border-slate-200 p-8 shadow-sm">
+                <h3 class="font-bold text-slate-900 mb-6 text-lg">Resumen de pago</h3>
+                <div class="space-y-3 mb-6">
+                    <div class="flex justify-between text-slate-500">
+                        <span>Subtotal</span>
+                        <span class="font-medium text-slate-900">${{ order.total_amount }}</span>
+                    </div>
+                    <div class="flex justify-between text-slate-500">
+                        <span>Envío</span>
+                        <span class="text-emerald-600 font-bold text-xs uppercase pt-1">Gratis</span>
+                    </div>
+                    <div class="pt-4 border-t border-slate-100 flex justify-between items-end">
+                        <span class="font-bold text-slate-900">Total</span>
+                        <span class="text-3xl font-black text-indigo-600">${{ order.total_amount }}</span>
+                    </div>
+                </div>
+                <a href="{% url 'catalog:product_list' %}" class="block w-full text-center py-3 bg-slate-100 hover:bg-slate-200 text-slate-700 font-bold rounded-xl transition">
+                    Seguir comprando
+                </a>
+            </div>
+        </aside>
+    </div>
+</div>
+
+<style>
+    /* Estilo para ocultar elementos al imprimir */
+    @media print {
+        nav, footer, aside, .flex.gap-3, .mt-4 { display: none !important; }
+        .lg\:col-span-2 { width: 100% !important; }
+        .max-w-7xl { max-width: 100% !important; margin: 0 !important; }
+    }
+</style>
+{% endblock %}

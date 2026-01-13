@@ -1,0 +1,239 @@
+<!DOCTYPE html>
+<html lang="es" class="h-full bg-slate-50">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    
+    {% block meta %}{% endblock %}
+    
+    <title>{% block title %}Mi Tienda{% endblock %}</title>
+    
+    {% load static %}
+    
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    
+    <script src="https://cdn.tailwindcss.com?plugins=forms,typography,aspect-ratio"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    fontFamily: {
+                        sans: ['Inter', 'sans-serif'],
+                    },
+                    colors: {
+                        primary: '#4f46e5', // Indigo 600
+                        primaryDark: '#4338ca', // Indigo 700
+                    }
+                }
+            }
+        }
+    </script>
+    
+    <link href="{% static 'css/style.css' %}" rel="stylesheet">
+    
+    <style>
+        /* Estilos críticos para asegurar que el footer se quede abajo */
+        body { display: flex; flex-direction: column; min-height: 100vh; }
+        main { flex: 1; }
+        [x-cloak] { display: none !important; }
+    </style>
+</head>
+<body class="font-sans antialiased text-slate-900">
+
+    <header class="fixed w-full top-0 z-50 bg-white/80 backdrop-blur-md border-b border-slate-200 transition-all duration-300" id="main-header">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex items-center justify-between h-16 gap-4">
+                
+                <div class="flex-shrink-0 flex items-center">
+                    <a href="/" class="flex items-center gap-2 group">
+                        <div class="bg-indigo-600 text-white p-1.5 rounded-lg group-hover:bg-indigo-700 transition">
+                            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" class="w-6 h-6">
+                                <path fill-rule="evenodd" d="M7.5 6v.75H5.513c-.96 0-1.764.724-1.865 1.679l-1.263 12A1.875 1.875 0 004.25 22.5h15.5a1.875 1.875 0 001.865-2.071l-1.263-12a1.875 1.875 0 00-1.865-1.679H16.5V6a4.5 4.5 0 10-9 0zM12 3a3 3 0 00-3 3v.75h6V6a3 3 0 00-3-3zm-3 8.25a3 3 0 106 0v-.75a.75.75 0 011.5 0v.75a4.5 4.5 0 11-9 0v-.75a.75.75 0 011.5 0v.75z" clip-rule="evenodd" />
+                            </svg>
+                        </div>
+                        <span class="font-bold text-xl tracking-tight text-slate-900 group-hover:text-indigo-600 transition">Mi Tienda</span>
+                    </a>
+                </div>
+
+                <div class="hidden md:flex flex-1 max-w-lg mx-8">
+                    <form method="get" action="{% url 'catalog:product_list' %}" class="w-full relative group">
+                        <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                            <svg class="h-5 w-5 text-slate-400 group-focus-within:text-indigo-500 transition" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor">
+                                <path fill-rule="evenodd" d="M9 3.5a5.5 5.5 0 100 11 5.5 5.5 0 000-11zM2 9a7 7 0 1112.452 4.391l3.328 3.329a.75.75 0 11-1.06 1.06l-3.329-3.328A7 7 0 012 9z" clip-rule="evenodd" />
+                            </svg>
+                        </div>
+                        <input 
+                            type="text" 
+                            name="q" 
+                            value="{% if request.GET.q %}{{ request.GET.q }}{% endif %}" 
+                            class="block w-full pl-10 pr-3 py-2 border border-slate-300 rounded-full leading-5 bg-slate-50 placeholder-slate-500 focus:outline-none focus:bg-white focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500 sm:text-sm transition-colors" 
+                            placeholder="Buscar productos..." 
+                            aria-label="Buscar"
+                        >
+                    </form>
+                </div>
+
+                <div class="hidden md:flex items-center gap-2">
+                    <a href="{% url 'orders:cart' %}" class="relative p-2 text-slate-500 hover:text-indigo-600 transition rounded-full hover:bg-slate-100 group" aria-label="Carrito">
+                        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-6 h-6">
+                            <path stroke-linecap="round" stroke-linejoin="round" d="M2.25 3h1.386c.51 0 .955.343 1.087.835l.383 1.437M7.5 14.25a3 3 0 00-3 3h15.75m-12.75-3h11.218c1.121-2.3 2.1-4.684 2.924-7.138a60.114 60.114 0 00-16.536-1.84M7.5 14.25L5.106 5.272M6 20.25a.75.75 0 11-1.5 0 .75.75 0 011.5 0zm12.75 0a.75.75 0 11-1.5 0 .75.75 0 011.5 0z" />
+                        </svg>
+                        {% if cart_item_count and cart_item_count > 0 %}
+                            <span class="absolute top-0 right-0 inline-flex items-center justify-center px-1.5 py-0.5 text-xs font-bold leading-none text-white transform translate-x-1/4 -translate-y-1/4 bg-red-600 rounded-full border-2 border-white">{{ cart_item_count }}</span>
+                        {% endif %}
+                    </a>
+
+                    <div class="h-6 w-px bg-slate-200 mx-2"></div>
+
+                    {% if user.is_authenticated %}
+                        <div class="relative group dropdown-container py-2">
+                            <button class="flex items-center gap-2 focus:outline-none cursor-pointer">
+                            {% if user.avatar %}
+                                <img src="{{ user.avatar.url }}" alt="" class="h-8 w-8 rounded-full object-cover border border-slate-200">
+                            {% else %}
+                                <div class="h-8 w-8 rounded-full bg-indigo-100 flex items-center justify-center text-indigo-700 font-bold border border-indigo-200">
+                                    {{ user.username|slice:":1"|upper }}
+                                </div>
+                            {% endif %}
+                                <span class="text-sm font-medium text-slate-700 group-hover:text-slate-900">{{ user.username }}</span>
+                                    <svg class="w-4 h-4 text-slate-400 transition-transform group-hover:rotate-180" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path>
+                                    </svg>
+                            </button>
+        
+                            <div class="absolute right-0 top-full -mt-1 w-48 bg-white rounded-xl shadow-xl py-1 ring-1 ring-black ring-opacity-5 hidden group-hover:block z-50 transform origin-top-right transition-all">
+                                <div class="absolute -top-1 right-4 w-3 h-3 bg-white rotate-45 border-l border-t border-black/5"></div>
+                                
+                                <div class="relative bg-white rounded-xl overflow-hidden">
+                                    <a href="{% url 'users:profile' %}" class="block px-4 py-2.5 text-sm text-slate-700 hover:bg-slate-50 transition-colors">Mi Perfil</a>
+                                    <a href="{% url 'orders:my_orders' %}" class="block px-4 py-2.5 text-sm text-slate-700 hover:bg-slate-50 transition-colors">Mis Pedidos</a>
+                                    <div class="border-t border-slate-100 my-1"></div>
+                                    <a href="{% url 'logout' %}" class="block px-4 py-2.5 text-sm text-red-600 hover:bg-red-50 transition-colors font-medium">Cerrar sesión</a>
+                                </div>
+                            </div>
+                     </div>
+                    {% else %}
+                        <a href="{% url 'login' %}" class="text-sm font-medium text-slate-600 hover:text-indigo-600 px-3 py-2">Ingresar</a>
+                        <a href="{% url 'users:register' %}" class="inline-flex items-center justify-center px-4 py-2 border border-transparent text-sm font-medium rounded-full text-white bg-indigo-600 hover:bg-indigo-700 shadow-sm transition">
+                            Registrarse
+                        </a>
+                    {% endif %}
+                </div>
+
+                <div class="flex md:hidden">
+                    <button id="mobile-menu-btn" type="button" class="inline-flex items-center justify-center p-2 rounded-md text-slate-500 hover:text-slate-900 hover:bg-slate-100 focus:outline-none focus:ring-2 focus:ring-inset focus:ring-indigo-500">
+                        <span class="sr-only">Abrir menú</span>
+                        <svg class="block h-6 w-6" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16" />
+                        </svg>
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <div class="md:hidden hidden bg-white border-t border-slate-100" id="mobile-menu">
+            <div class="px-2 pt-2 pb-3 space-y-1 sm:px-3">
+                <form method="get" action="{% url 'catalog:product_list' %}" class="mb-4 px-2">
+                    <input type="text" name="q" placeholder="Buscar..." class="w-full rounded-md border-slate-300 bg-slate-50 px-4 py-2 text-sm focus:border-indigo-500 focus:ring-indigo-500">
+                </form>
+                <a href="/" class="block px-3 py-2 rounded-md text-base font-medium text-slate-700 hover:text-indigo-600 hover:bg-slate-50">Inicio</a>
+                <a href="{% url 'catalog:product_list' %}" class="block px-3 py-2 rounded-md text-base font-medium text-slate-700 hover:text-indigo-600 hover:bg-slate-50">Catálogo</a>
+                <a href="{% url 'orders:cart' %}" class="flex items-center justify-between px-3 py-2 rounded-md text-base font-medium text-slate-700 hover:text-indigo-600 hover:bg-slate-50">
+                    <span>Carrito</span>
+                    {% if cart_item_count %}<span class="bg-indigo-100 text-indigo-700 px-2 py-0.5 rounded-full text-xs">{{ cart_item_count }}</span>{% endif %}
+                </a>
+            </div>
+            
+            <div class="pt-4 pb-4 border-t border-slate-200">
+                {% if user.is_authenticated %}
+                    <div class="flex items-center px-5 mb-3">
+                        <div class="flex-shrink-0">
+                            {% if user.avatar %}
+                                <img class="h-10 w-10 rounded-full object-cover" src="{{ user.avatar.url }}" alt="">
+                            {% else %}
+                                <div class="h-10 w-10 rounded-full bg-indigo-100 flex items-center justify-center text-indigo-600 font-bold">{{ user.username|slice:":1"|upper }}</div>
+                            {% endif %}
+                        </div>
+                        <div class="ml-3">
+                            <div class="text-base font-medium leading-none text-slate-800">{{ user.username }}</div>
+                            <div class="text-sm font-medium leading-none text-slate-500 mt-1">{{ user.email }}</div>
+                        </div>
+                    </div>
+                    <div class="space-y-1 px-2">
+                        <a href="{% url 'users:profile' %}" class="block px-3 py-2 rounded-md text-base font-medium text-slate-600 hover:text-slate-900 hover:bg-slate-50">Mi Perfil</a>
+                        <a href="{% url 'logout' %}" class="block px-3 py-2 rounded-md text-base font-medium text-red-600 hover:bg-red-50">Cerrar sesión</a>
+                    </div>
+                {% else %}
+                    <div class="grid grid-cols-2 gap-4 px-4">
+                        <a href="{% url 'login' %}" class="block text-center px-4 py-2 border border-slate-300 rounded-md shadow-sm text-sm font-medium text-slate-700 bg-white hover:bg-slate-50">Ingresar</a>
+                        <a href="{% url 'users:register' %}" class="block text-center px-4 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-indigo-600 hover:bg-indigo-700">Registrarse</a>
+                    </div>
+                {% endif %}
+            </div>
+        </div>
+    </header>
+
+    <main class="pt-16 mt-6 w-full max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        
+        {% if messages %}
+            <div class="mb-6 space-y-2 max-w-3xl mx-auto">
+                {% for message in messages %}
+                    <div class="rounded-md p-4 flex items-center gap-3 shadow-sm border 
+                        {% if message.tags == 'debug' %}bg-gray-50 text-gray-700 border-gray-200
+                        {% elif message.tags == 'info' %}bg-blue-50 text-blue-700 border-blue-200
+                        {% elif message.tags == 'success' %}bg-green-50 text-green-700 border-green-200
+                        {% elif message.tags == 'warning' %}bg-yellow-50 text-yellow-700 border-yellow-200
+                        {% elif message.tags == 'error' %}bg-red-50 text-red-700 border-red-200{% endif %}" role="alert">
+                        
+                        {% if message.tags == 'success' %}
+                            <svg class="h-5 w-5 text-green-500" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"/></svg>
+                        {% elif message.tags == 'error' %}
+                            <svg class="h-5 w-5 text-red-500" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z" clip-rule="evenodd"/></svg>
+                        {% endif %}
+                        
+                        <span class="flex-1 text-sm font-medium">{{ message }}</span>
+                        
+                        <button type="button" class="inline-flex rounded-md p-1.5 focus:outline-none focus:ring-2 focus:ring-offset-2 opacity-60 hover:opacity-100 transition" onclick="this.parentElement.remove()">
+                            <span class="sr-only">Cerrar</span>
+                            <svg class="h-4 w-4" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z" clip-rule="evenodd"/></svg>
+                        </button>
+                    </div>
+                {% endfor %}
+            </div>
+        {% endif %}
+
+        {% block content %}{% endblock %}
+    </main>
+
+    <div class="mt-16">
+        {% include 'includes/footer.html' %}
+    </div>
+
+    <script>
+        // Toggle Menú Móvil
+        const btn = document.getElementById('mobile-menu-btn');
+        const menu = document.getElementById('mobile-menu');
+
+        if (btn && menu) {
+            btn.addEventListener('click', () => {
+                menu.classList.toggle('hidden');
+            });
+        }
+        
+        // Auto-cerrar mensajes después de 5 segundos
+        setTimeout(() => {
+            const alerts = document.querySelectorAll('[role="alert"]');
+            alerts.forEach(alert => {
+                alert.style.opacity = '0';
+                alert.style.transition = 'opacity 0.5s ease';
+                setTimeout(() => alert.remove(), 500);
+            });
+        }, 5000);
+    </script>
+
+    <script src="{% static 'js/ui.js' %}"></script>
+    <script src="{% static 'js/form-floats.js' %}"></script>
+</body>
+</html>

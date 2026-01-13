@@ -1,0 +1,18 @@
+{% extends "base.html" %}
+
+{% block title %}Añadir dirección{% endblock %}
+
+{% block content %}
+<h2>Añadir dirección</h2>
+<form method="post">
+  {% csrf_token %}
+  {% for field in form %}
+    <div class="mb-3">
+      <label class="form-label" for="{{ field.id_for_label }}">{{ field.label }}</label>
+      {{ field }}
++      {{ field.errors }}
+    </div>
+  {% endfor %}
+  <button class="btn btn-primary">Guardar</button>
+</form>
+{% endblock %}

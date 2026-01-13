@@ -1,0 +1,6 @@
+runtime: python
+build:
+  commands:
+    - pip install -r requirements.txt
+start:
+  command: gunicorn ecommerce.wsgi

@@ -1,0 +1,14 @@
+{% comment %}Floating label field renderer for BoundField
+   Usage: {% include 'includes/form_field_floating.html' with field=field %}
+{% endcomment %}
+{% load rest_framework %}
+<div class="floating-field mb-4">
+  <div class="relative">
+    {# Use DRF's add_class filter to inject CSS classes (avoids calling methods with kwargs in templates) #}
+    {{ field|add_class:"tg-field floating-input" }}
+    <label for="{{ field.id_for_label }}" class="floating-label">{{ field.label }}</label>
+  </div>
+  {% if field.errors %}
+    <div class="text-sm text-red-600 mt-2">{{ field.errors|striptags }}</div>
+  {% endif %}
+</div>

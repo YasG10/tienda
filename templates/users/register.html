@@ -1,0 +1,109 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block title %}Crear cuenta — Mi Tienda{% endblock %}
+
+{% block content %}
+<div class="min-h-screen flex flex-col justify-center py-12 px-4 sm:px-6 lg:px-8">
+    <div class="sm:mx-auto sm:w-full sm:max-w-md text-center">
+        <h2 class="text-3xl font-black text-slate-900 tracking-tight">Crea tu cuenta</h2>
+        <p class="mt-2 text-sm text-slate-500">Únete para gestionar tus pedidos y favoritos.</p>
+    </div>
+
+    <div class="mt-10 sm:mx-auto sm:w-full sm:max-w-xl">
+        <div class="glass-card p-8 sm:p-10 rounded-3xl border border-slate-200 shadow-2xl bg-white/70 backdrop-blur-md">
+            
+            <form method="post" class="space-y-5" novalidate enctype="multipart/form-data">
+                {% csrf_token %}
+                
+                {% if form.non_field_errors %}
+                <div class="p-4 rounded-xl bg-rose-50 border border-rose-100 text-rose-700 text-xs font-medium">
+                    {{ form.non_field_errors }}
+                </div>
+                {% endif %}
+
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-5">
+                    {% for field in form %}
+                        <div class="{% if field.name == 'email' or field.name == 'username' %}md:col-span-2{% endif %} space-y-1">
+                            <label for="{{ field.id_for_label }}" class="block text-xs font-bold text-slate-700 ml-1 uppercase tracking-wider">
+                                {{ field.label }}
+                            </label>
+                            
+                            <div class="relative">
+                                {% if field.name == 'avatar' %}
+                                    <div class="block w-full px-4 py-2 border border-slate-200 rounded-2xl bg-white/50 text-sm overflow-hidden">
+                                        {{ field }}
+                                    </div>
+                                {% else %}
+                                    <input type="{% if 'password' in field.name %}password{% else %}text{% endif %}" 
+                                           name="{{ field.html_name }}" 
+                                           id="{{ field.id_for_label }}"
+                                           {% if field.value %}value="{{ field.value }}"{% endif %}
+                                           class="block w-full px-4 py-3 border border-slate-200 rounded-2xl text-slate-900 placeholder-slate-400 focus:ring-2 focus:ring-indigo-500 focus:border-transparent transition-all sm:text-sm bg-white/50"
+                                           placeholder="{{ field.label }}">
+                                {% endif %}
+                            </div>
+
+                            {% if field.errors %}
+                                <p class="text-[10px] text-rose-500 font-bold mt-1 ml-1">{{ field.errors.0 }}</p>
+                            {% endif %}
+
+                            {% if field.name == 'password1' %}
+                                <div class="mt-2 px-1">
+                                    <div class="h-1.5 w-full bg-slate-200 rounded-full overflow-hidden">
+                                        <div id="pw-strength-bar" class="h-full w-0 transition-all duration-500 bg-slate-400"></div>
+                                    </div>
+                                    <p id="pw-strength-text" class="text-[10px] font-bold mt-1 text-slate-400 uppercase tracking-tight">Seguridad: pendiente</p>
+                                </div>
+                            {% endif %}
+                        </div>
+                    {% endfor %}
+                </div>
+
+                <div class="pt-4 flex flex-col gap-4">
+                    <button type="submit" class="w-full flex justify-center py-4 px-4 border border-transparent rounded-2xl shadow-lg shadow-indigo-100 text-sm font-black text-white bg-indigo-600 hover:bg-indigo-700 transition-all transform active:scale-95">
+                        Registrarme ahora
+                    </button>
+                    
+                    <a href="{% url 'login' %}" class="text-center text-sm font-bold text-slate-600 hover:text-indigo-600 transition-colors">
+                        ¿Ya tienes cuenta? Inicia sesión
+                    </a>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<script>
+    const passwordInput = document.querySelector('input[name="password1"]');
+    const strengthBar = document.getElementById('pw-strength-bar');
+    const strengthText = document.getElementById('pw-strength-text');
+
+    if (passwordInput) {
+        passwordInput.addEventListener('input', function() {
+            const val = this.value;
+            let strength = 0;
+            if (val.length > 5) strength += 25;
+            if (val.match(/[A-Z]/)) strength += 25;
+            if (val.match(/[0-9]/)) strength += 25;
+            if (val.match(/[^A-Za-z0-9]/)) strength += 25;
+
+            strengthBar.style.width = strength + '%';
+            
+            if (strength <= 25) {
+                strengthBar.className = 'h-full transition-all duration-500 bg-rose-500';
+                strengthText.innerText = 'Seguridad: Débil';
+                strengthText.className = 'text-[10px] font-bold mt-1 text-rose-500 uppercase';
+            } else if (strength <= 75) {
+                strengthBar.className = 'h-full transition-all duration-500 bg-amber-500';
+                strengthText.innerText = 'Seguridad: Media';
+                strengthText.className = 'text-[10px] font-bold mt-1 text-amber-500 uppercase';
+            } else {
+                strengthBar.className = 'h-full transition-all duration-500 bg-emerald-500';
+                strengthText.innerText = 'Seguridad: Fuerte';
+                strengthText.className = 'text-[10px] font-bold mt-1 text-emerald-500 uppercase';
+            }
+        });
+    }
+</script>
+{% endblock %}

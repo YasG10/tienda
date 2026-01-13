@@ -1,0 +1,17 @@
+{% extends "base.html" %}
+
+{% block title %}Mis direcciones{% endblock %}
+
+{% block content %}
+<h2>Mis direcciones</h2>
+<a class="btn btn-primary mb-3" href="{% url 'addresses:create' %}">Añadir dirección</a>
+{% if addresses %}
+  <ul class="list-group">
+    {% for addr in addresses %}
+      <li class="list-group-item">{{ addr }} {% if addr.is_default %}<span class="badge bg-success">Por defecto</span>{% endif %}</li>
+    {% endfor %}
+  </ul>
+{% else %}
+  <div class="alert alert-info">No tienes direcciones todavía.</div>
+{% endif %}
+{% endblock %}

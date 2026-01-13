@@ -1,0 +1,9 @@
+{% extends "admin/base.html" %}
+{% load static %}
+
+{% block extrahead %}
+<link rel="stylesheet" href="{% static 'css/admin.css' %}">
+{{ block.super }}
+{% endblock %}
+
+{% block title %}Mi Tienda Admin{% endblock %}

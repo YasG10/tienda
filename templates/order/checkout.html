@@ -1,0 +1,105 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block title %}Finalizar Compra — Mi Tienda{% endblock %}
+
+{% block content %}
+<div class="max-w-4xl mx-auto py-10 px-4">
+    
+    <div class="flex items-center justify-center mb-12">
+        <div class="flex items-center gap-4">
+            <span class="w-8 h-8 rounded-full bg-emerald-500 text-white flex items-center justify-center text-sm">✓</span>
+            <span class="text-sm font-bold text-slate-900">Carrito</span>
+            <div class="w-12 h-px bg-slate-200"></div>
+            <span class="w-8 h-8 rounded-full bg-indigo-600 text-white flex items-center justify-center text-sm font-bold">2</span>
+            <span class="text-sm font-bold text-slate-900">Envío</span>
+            <div class="w-12 h-px bg-slate-200"></div>
+            <span class="w-8 h-8 rounded-full bg-slate-200 text-slate-500 flex items-center justify-center text-sm">3</span>
+            <span class="text-sm font-medium text-slate-400">Pago</span>
+        </div>
+    </div>
+
+    <div class="grid grid-cols-1 gap-8">
+        <div class="glass-card p-8 rounded-3xl border border-slate-200 shadow-xl bg-white/70 backdrop-blur-md">
+            <h2 class="text-2xl font-black text-slate-900 mb-8 tracking-tight">Detalles de envío</h2>
+
+            {% if error %}
+            <div class="mb-6 p-4 rounded-xl bg-rose-50 border border-rose-100 text-rose-700 text-sm flex items-center gap-3">
+                <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z" clip-rule="evenodd" /></svg>
+                {{ error }}
+            </div>
+            {% endif %}
+
+            {% if not user.is_authenticated %}
+            <div class="mb-8 p-5 rounded-2xl bg-amber-50 border border-amber-100 text-amber-800 flex flex-col sm:flex-row items-center justify-between gap-4">
+                <p class="text-sm font-medium italic">¿Ya tienes cuenta? Identifícate para usar tus direcciones guardadas.</p>
+                <a href="{% url 'login' %}" class="px-5 py-2 bg-amber-200 hover:bg-amber-300 rounded-xl text-sm font-bold transition">Iniciar Sesión</a>
+            </div>
+            {% endif %}
+
+            <form method="post" class="space-y-8">
+                {% csrf_token %}
+                <input type="hidden" name="order_token" value="{{ order_token }}">
+
+                <div class="space-y-6">
+                    {% if addresses and addresses.exists %}
+                    <div class="space-y-3">
+                        <label class="text-sm font-bold text-slate-900 uppercase tracking-wider">Tus direcciones guardadas</label>
+                        <select name="address_id" class="block w-full rounded-xl border-slate-200 bg-white/50 py-3 px-4 text-slate-700 focus:ring-2 focus:ring-indigo-500 focus:border-transparent transition-all">
+                            <option value="">-- Utilizar una nueva dirección --</option>
+                            {% for addr in addresses %}
+                                <option value="{{ addr.id }}">{{ addr.street }}, {{ addr.city }}</option>
+                            {% endfor %}
+                        </select>
+                    </div>
+                    
+                    <div class="relative py-4">
+                        <div class="absolute inset-0 flex items-center" aria-hidden="true"><div class="w-full border-t border-slate-100"></div></div>
+                        <div class="relative flex justify-center text-xs uppercase"><span class="bg-white px-2 text-slate-400 font-bold">O nueva dirección</span></div>
+                    </div>
+                    {% endif %}
+
+                    <div class="bg-slate-50/50 p-6 rounded-2xl border border-slate-100 space-y-4">
+                        <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                            {% include 'includes/form_field.html' with name='province' label='Provincia' placeholder='Ej. Madrid' %}
+                            {% include 'includes/form_field.html' with name='city' label='Ciudad' placeholder='Ej. Alcobendas' %}
+                        </div>
+                        {% include 'includes/form_field.html' with name='street' label='Calle y Número' placeholder='Ej. Calle Mayor 123, 2B' %}
+                        
+                        <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                            {% include 'includes/form_field.html' with name='phone' label='Teléfono de contacto' placeholder='Ej. 600 000 000' %}
+                            {% include 'includes/form_field.html' with name='reference' label='Indicaciones adicionales' placeholder='Ej. Al lado de la farmacia' %}
+                        </div>
+
+                        <div class="flex items-center gap-2 pt-2">
+                            <input type="checkbox" id="default_addr" name="is_default" class="w-4 h-4 rounded border-slate-300 text-indigo-600 focus:ring-indigo-500">
+                            <label for="default_addr" class="text-sm text-slate-600 cursor-pointer">Guardar como dirección principal</label>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="space-y-3">
+                    <label class="text-sm font-bold text-slate-900 uppercase tracking-wider">Notas del pedido</label>
+                    <textarea name="notes" rows="3" class="block w-full rounded-xl border-slate-200 bg-white/50 px-4 py-3 text-slate-700 focus:ring-2 focus:ring-indigo-500 focus:border-transparent transition-all" placeholder="¿Alguna instrucción para el repartidor?"></textarea>
+                </div>
+
+                <div class="pt-6 border-t border-slate-100 flex flex-col sm:flex-row items-center justify-between gap-6">
+                    <a href="{% url 'orders:cart' %}" class="text-sm font-bold text-slate-400 hover:text-slate-600 flex items-center gap-2 group transition">
+                        <svg class="w-4 h-4 transition-transform group-hover:-translate-x-1" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M15 19l-7-7 7-7" stroke-width="2"></path></svg>
+                        Volver al carrito
+                    </a>
+                    <button type="submit" class="w-full sm:w-auto bg-slate-900 hover:bg-slate-800 text-white font-black py-4 px-10 rounded-2xl shadow-xl shadow-slate-200 transition-all transform active:scale-95">
+                        Confirmar y continuar
+                    </button>
+                </div>
+            </form>
+        </div>
+
+        <div class="flex items-center justify-center gap-8 opacity-40 grayscale">
+            <img src="https://upload.wikimedia.org/wikipedia/commons/b/b5/PayPal.svg" class="h-5" alt="PayPal">
+            <img src="https://upload.wikimedia.org/wikipedia/commons/2/2a/Mastercard-logo.svg" class="h-8" alt="Mastercard">
+            <img src="https://upload.wikimedia.org/wikipedia/commons/5/5e/Visa_Inc._logo.svg" class="h-4" alt="Visa">
+        </div>
+    </div>
+</div>
+{% endblock %}

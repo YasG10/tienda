@@ -1,0 +1,111 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block title %}Mi Perfil — Mi Tienda{% endblock %}
+
+{% block content %}
+<div class="max-w-5xl mx-auto py-10 px-4">
+    
+    <div class="mb-10">
+        <h1 class="text-3xl font-black text-slate-900 tracking-tight">Configuración de Cuenta</h1>
+        <p class="text-slate-500 mt-2">Gestiona tu información personal y preferencias de contacto.</p>
+    </div>
+
+    <div class="grid grid-cols-1 lg:grid-cols-12 gap-8">
+        
+        <div class="lg:col-span-4 space-y-6">
+            <div class="glass-card p-8 rounded-3xl border border-slate-200 shadow-sm text-center bg-white/60 backdrop-blur-md">
+                <div class="relative inline-block group">
+                    <div class="w-32 h-32 rounded-full overflow-hidden border-4 border-white shadow-xl bg-slate-100 mx-auto transition-transform group-hover:scale-105 duration-500">
+                        {% if user.avatar %}
+                            <img src="{{ user.avatar.url }}" class="w-full h-full object-cover" alt="Avatar">
+                        {% else %}
+                            <img src="{% static 'img/profile_placeholder.svg' %}" class="w-full h-full object-cover opacity-60" alt="Avatar">
+                        {% endif %}
+                    </div>
+                    <div class="absolute inset-0 rounded-full bg-indigo-900/20 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center cursor-default">
+                        <svg class="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 9a2 2 0 012-2h.93a2 2 0 001.664-.89l.812-1.22A2 2 0 0110.07 4h3.86a2 2 0 011.664.89l.812 1.22A2 2 0 0018.07 7H19a2 2 0 012 2v9a2 2 0 01-2 2H5a2 2 0 01-2-2V9z"/><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 13a3 3 0 11-6 0 3 3 0 016 0z"/></svg>
+                    </div>
+                </div>
+
+                <div class="mt-6">
+                    <h2 class="text-xl font-bold text-slate-900 leading-tight">
+                        {{ user.get_full_name|default:user.username }}
+                    </h2>
+                    <p class="text-sm text-slate-500 font-medium italic mt-1">{{ user.email }}</p>
+                </div>
+
+                <div class="mt-8 pt-6 border-t border-slate-100 flex flex-col gap-3">
+                    <a href="{% url 'orders:my_orders' %}" class="flex items-center justify-center gap-2 w-full py-3 bg-indigo-600 hover:bg-indigo-700 text-white rounded-2xl font-bold text-sm shadow-lg shadow-indigo-100 transition-all">
+                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z"/></svg>
+                        Historial de Pedidos
+                    </a>
+                </div>
+            </div>
+
+            <div class="p-6 rounded-3xl bg-slate-900 text-white shadow-xl">
+                <h3 class="text-xs font-bold uppercase tracking-widest text-slate-400 mb-4">Estado de Cuenta</h3>
+                <div class="flex items-center gap-3 text-sm">
+                    <div class="w-2 h-2 rounded-full bg-emerald-400 animate-pulse"></div>
+                    <span class="font-medium">Cliente Verificado</span>
+                </div>
+                <p class="text-[11px] text-slate-500 mt-2">Miembro desde {{ user.date_joined|date:"F Y" }}</p>
+            </div>
+        </div>
+
+        <div class="lg:col-span-8">
+            <div class="glass-card p-8 rounded-3xl border border-slate-200 shadow-sm bg-white/60 backdrop-blur-md">
+                <form method="post" enctype="multipart/form-data" class="space-y-8">
+                    {% csrf_token %}
+                    
+                    {% if form.non_field_errors %}
+                        <div class="p-4 rounded-xl bg-rose-50 border border-rose-100 text-rose-700 text-sm">
+                            {{ form.non_field_errors }}
+                        </div>
+                    {% endif %}
+
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                        <div class="space-y-2">
+                            <label class="text-sm font-bold text-slate-700 ml-1">Nombre de usuario</label>
+                            <input type="text" value="{{ user.username }}" disabled 
+                                class="w-full rounded-xl border-slate-100 bg-slate-50 text-slate-400 py-3 px-4 cursor-not-allowed text-sm">
+                        </div>
+                        <div class="space-y-2">
+                            <label for="{{ form.email.id_for_label }}" class="text-sm font-bold text-slate-700 ml-1">Correo Electrónico</label>
+                            <input type="email" name="{{ form.email.name }}" id="{{ form.email.id_for_label }}" 
+                                value="{{ form.email.value|default:'' }}"
+                                class="w-full rounded-xl border-slate-200 bg-white/80 py-3 px-4 text-slate-900 focus:ring-2 focus:ring-indigo-500 focus:border-transparent transition-all text-sm">
+                            <span class="text-[10px] text-rose-500 font-medium">{{ form.email.errors }}</span>
+                        </div>
+                    </div>
+
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                        <div class="space-y-2">
+                            <label for="{{ form.phone.id_for_label }}" class="text-sm font-bold text-slate-700 ml-1">Teléfono Móvil</label>
+                            <input type="text" name="{{ form.phone.name }}" id="{{ form.phone.id_for_label }}" 
+                                value="{{ form.phone.value|default:'' }}"
+                                class="w-full rounded-xl border-slate-200 bg-white/80 py-3 px-4 text-slate-900 focus:ring-2 focus:ring-indigo-500 focus:border-transparent transition-all text-sm">
+                            <span class="text-[10px] text-rose-500 font-medium">{{ form.phone.errors }}</span>
+                        </div>
+                        
+                        <div class="space-y-2">
+                            <label for="{{ form.avatar.id_for_label }}" class="text-sm font-bold text-slate-700 ml-1">Actualizar Avatar</label>
+                            <div class="flex items-center gap-3">
+                                <input type="file" name="{{ form.avatar.name }}" id="{{ form.avatar.id_for_label }}"
+                                    class="block w-full text-xs text-slate-500 file:mr-4 file:py-2.5 file:px-4 file:rounded-xl file:border-0 file:text-xs file:font-bold file:bg-indigo-50 file:text-indigo-700 hover:file:bg-indigo-100 transition-all">
+                            </div>
+                            <span class="text-[10px] text-rose-500 font-medium">{{ form.avatar.errors }}</span>
+                        </div>
+                    </div>
+
+                    <div class="pt-6 border-t border-slate-100 flex justify-end">
+                        <button type="submit" class="bg-slate-900 hover:bg-slate-800 text-white font-black py-3.5 px-10 rounded-2xl shadow-xl shadow-slate-200 transition-all transform active:scale-95">
+                            Guardar Cambios
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

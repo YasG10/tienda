@@ -1,0 +1,111 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block title %}{{ product.name }} — Mi Tienda{% endblock %}
+
+{% block content %}
+<div class="max-w-7xl mx-auto py-8">
+    
+    <nav class="flex mb-8 text-sm text-slate-500" aria-label="Breadcrumb">
+        <a href="/" class="hover:text-indigo-600 transition">Inicio</a>
+        <span class="mx-3 text-slate-300">/</span>
+        <a href="{% url 'catalog:product_list' %}" class="hover:text-indigo-600 transition">Catálogo</a>
+        <span class="mx-3 text-slate-300">/</span>
+        <span class="text-slate-900 font-medium">{{ product.name }}</span>
+    </nav>
+
+    <div class="grid grid-cols-1 lg:grid-cols-12 gap-12 items-start">
+        
+        <div class="lg:col-span-7 group">
+            <div class="relative aspect-square rounded-3xl overflow-hidden bg-white border border-slate-200 shadow-sm transition-all duration-500 hover:shadow-xl">
+                {% if product.image %}
+                    <img src="{{ product.image.url }}" alt="{{ product.name }}" class="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105" />
+                {% else %}
+                    <div class="w-full h-full flex flex-col items-center justify-center bg-slate-50">
+                        <svg class="w-20 h-20 text-slate-200" fill="currentColor" viewBox="0 0 24 24"><path d="M19 3H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zm0 16H5V5h14v14zm-5.04-6.71l-2.75 3.54-1.96-2.36L6.5 17h11l-3.54-4.71z"/></svg>
+                        <p class="text-slate-400 text-sm mt-4">Imagen no disponible</p>
+                    </div>
+                {% endif %}
+
+                {% if product.stock < 5 %}
+                <div class="absolute top-6 left-6">
+                    <span class="bg-amber-100 text-amber-700 text-xs font-bold px-3 py-1.5 rounded-full border border-amber-200 shadow-sm animate-pulse">
+                        🔥 Solo quedan {{ product.stock }} unidades
+                    </span>
+                </div>
+                {% endif %}
+            </div>
+        </div>
+
+        <div class="lg:col-span-5 space-y-8">
+            <div class="glass-card p-8 rounded-3xl border border-slate-200 shadow-sm bg-white/50 backdrop-blur-md">
+                <header class="mb-6">
+                    <span class="text-indigo-600 font-bold text-xs uppercase tracking-widest">{{ product.category.name|default:"General" }}</span>
+                    <h1 class="text-4xl font-extrabold text-slate-900 mt-2 tracking-tight">{{ product.name }}</h1>
+                </header>
+
+                <div class="flex items-center gap-4 mb-8">
+                    <span class="text-4xl font-black text-slate-900">${{ product.price }}</span>
+                    {% if product.old_price %}
+                        <span class="text-xl text-slate-400 line-through">${{ product.old_price }}</span>
+                    {% endif %}
+                </div>
+
+                <div class="prose prose-slate prose-sm mb-8">
+                    <p class="text-slate-600 leading-relaxed text-base">
+                        {{ product.description }}
+                    </p>
+                </div>
+
+                <form method="post" action="{% url 'orders:cart_add' product.id %}" class="space-y-4">
+                    {% csrf_token %}
+                    
+                    <div class="flex flex-col gap-2">
+                        <label for="quantity" class="text-sm font-semibold text-slate-700">Cantidad:</label>
+                        <div class="flex items-center gap-3">
+                            <input type="number" id="quantity" name="quantity" value="1" min="1" max="{{ product.stock|default:10 }}" 
+                                class="w-24 rounded-xl border-slate-200 bg-white/80 py-3 px-4 font-bold text-slate-900 focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition-all">
+                            
+                            <button type="submit" class="flex-1 bg-indigo-600 hover:bg-indigo-700 text-white font-bold py-3.5 px-8 rounded-xl shadow-lg shadow-indigo-100 transition-all transform active:scale-[0.98] flex items-center justify-center gap-3">
+                                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" class="w-5 h-5">
+                                    <path stroke-linecap="round" stroke-linejoin="round" d="M15.75 10.5V6a3.75 3.75 0 10-7.5 0v4.5m11.356-1.993l1.263 12c.07.665-.45 1.243-1.119 1.243H4.25a1.125 1.125 0 01-1.12-1.243l1.264-12A1.125 1.125 0 015.513 7.5h12.974c.576 0 1.059.435 1.119 1.007zM8.625 10.5a.375.375 0 11-.75 0 .375.375 0 01.75 0zm7.5 0a.375.375 0 11-.75 0 .375.375 0 01.75 0z" />
+                                </svg>
+                                Añadir al carrito
+                            </button>
+                        </div>
+                    </div>
+                </form>
+
+                <div class="mt-8 pt-8 border-t border-slate-100 grid grid-cols-2 gap-4">
+                    <a href="{% url 'catalog:product_list' %}" class="text-sm font-medium text-slate-500 hover:text-indigo-600 transition flex items-center gap-2">
+                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7 7-7"></path></svg>
+                        Volver al catálogo
+                    </a>
+                </div>
+            </div>
+
+            <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
+                <div class="p-4 bg-slate-50 rounded-2xl border border-slate-100 text-center">
+                    <div class="w-10 h-10 bg-indigo-100 text-indigo-600 rounded-full flex items-center justify-center mx-auto mb-3">
+                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M5 13l4 4L19 7"></path></svg>
+                    </div>
+                    <span class="text-[10px] font-bold uppercase tracking-widest text-slate-500">Envío Gratis</span>
+                </div>
+                <div class="p-4 bg-slate-50 rounded-2xl border border-slate-100 text-center">
+                    <div class="w-10 h-10 bg-indigo-100 text-indigo-600 rounded-full flex items-center justify-center mx-auto mb-3">
+                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"></path></svg>
+                    </div>
+                    <span class="text-[10px] font-bold uppercase tracking-widest text-slate-500">Pago Seguro</span>
+                </div>
+                <div class="p-4 bg-slate-50 rounded-2xl border border-slate-100 text-center">
+                    <div class="w-10 h-10 bg-indigo-100 text-indigo-600 rounded-full flex items-center justify-center mx-auto mb-3">
+                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"></path></svg>
+                    </div>
+                    <span class="text-[10px] font-bold uppercase tracking-widest text-slate-500">30 Días Garantía</span>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+{% endblock %}
