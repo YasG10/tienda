@@ -46,6 +46,8 @@ INSTALLED_APPS = [
 
     # Third-party
     'rest_framework',
+    'cloudinary_storage',
+    'cloudinary',
 
     # Local apps
     'users',
@@ -190,3 +192,11 @@ TELEGRAM_ADMIN_ID = 1039489625
 
 import os
 STATIC_ROOT = os.path.join(BASE_DIR, 'staticfiles')
+
+CLOUDINARY_STORAGE = {
+    'CLOUD_NAME': 'dhvqptmhw',
+    'API_KEY': '139433438828628',
+    'API_SECRET': 'JcwJR6l6Qpoh4n5q0og7qjKX7pc',
+}
+
+DEFAULT_FILE_STORAGE = 'cloudinary_storage.storage.MediaCloudinaryStorage'
