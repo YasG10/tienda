@@ -23,7 +23,8 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 SECRET_KEY = 'django-insecure-ybow(2u11kiu5f#g8$ot%y2-%iuei-8+ftli9(!f5h^9#g8y_n'
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = True
+DEBUG = False
+
 
 ALLOWED_HOSTS = []
 
@@ -58,6 +59,7 @@ MIDDLEWARE = [
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
+    'whitenoise.middleware.WhiteNoiseMiddleware',
 ]
 
 ROOT_URLCONF = 'ecommerce.urls'
@@ -170,3 +172,6 @@ SIMPLE_JWT = {
 # Telegram notifications (set TELEGRAM_BOT_TOKEN in environment or local settings)
 TELEGRAM_BOT_TOKEN = "8593546295:AAGInSHwwpwGo50deNyb0UrU24OgikW1hfY"
 TELEGRAM_ADMIN_ID = 1039489625
+
+import os
+STATIC_ROOT = os.path.join(BASE_DIR, 'staticfiles')
