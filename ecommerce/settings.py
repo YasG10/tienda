@@ -195,8 +195,8 @@ STATIC_ROOT = os.path.join(BASE_DIR, 'staticfiles')
 
 CLOUDINARY_STORAGE = {
     'CLOUD_NAME': 'dhvqptmhw',
-    'API_KEY': '139433438828628',
-    'API_SECRET': 'JcwJR6l6Qpoh4n5q0og7qjKX7pc',
+    'API_KEY': '412157869938862',
+    'API_SECRET': 'oq7DWTEnikHweQ64Uk3808sXEQg',
 }
 
 DEFAULT_FILE_STORAGE = 'cloudinary_storage.storage.MediaCloudinaryStorage'
