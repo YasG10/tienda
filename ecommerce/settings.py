@@ -23,7 +23,7 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 SECRET_KEY = 'django-insecure-ybow(2u11kiu5f#g8$ot%y2-%iuei-8+ftli9(!f5h^9#g8y_n'
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = False
+DEBUG = True
 
 
 ALLOWED_HOSTS = [
@@ -194,9 +194,9 @@ import os
 STATIC_ROOT = os.path.join(BASE_DIR, 'staticfiles')
 
 CLOUDINARY_STORAGE = {
-    "CLOUD_NAME": os.environ.get("CLOUDINARY_CLOUD_NAME"),
-    "API_KEY": os.environ.get("CLOUDINARY_API_KEY"),
-    "API_SECRET": os.environ.get("CLOUDINARY_API_SECRET"),
+    "CLOUD_NAME": os.environ.get("CLOUDINARY_CLOUD_NAME") or "dhvqptmhw",
+    "API_KEY": os.environ.get("CLOUDINARY_API_KEY") or "412157869938862",
+    "API_SECRET": os.environ.get("CLOUDINARY_API_SECRET" ) or "oq7DWTEnikHweQ64Uk3808sXEQg",
 }
 
 STORAGES = {
