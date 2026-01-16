@@ -173,19 +173,74 @@ def telegram_webhook(request):
                             f"_Actualizado: {order.updated_at.strftime('%d/%m/%Y %H:%M')}_"
                         )
                         
-                        # Editar el mensaje
+                        # Recrear los botones inline
+                        keyboard = [
+                            [
+                                {"text": "✅ Confirmar", "callback_data": f"order:{order.id}:CONFIRMED"},
+                                {"text": "🚚 En camino", "callback_data": f"order:{order.id}:ON_THE_WAY"},
+                            ],
+                            [
+                                {"text": "📦 Entregado", "callback_data": f"order:{order.id}:DELIVERED"},
+                                {"text": "❌ Cancelar", "callback_data": f"order:{order.id}:CANCELLED"},
+                            ]
+                        ]
+                        
+                        # Editar el mensaje con botones
                         url = f"https://api.telegram.org/bot{token}/editMessageText"
                         body = json.dumps({
                             'chat_id': chat_id,
                             'message_id': message_id,
                             'text': updated_text,
-                            'parse_mode': 'Markdown'
+                            'parse_mode': 'Markdown',
+                            'reply_markup': {'inline_keyboard': keyboard}
                         })
                         req = urllib.request.Request(url, data=body.encode('utf-8'), headers={'Content-Type': 'application/json'})
                         urllib.request.urlopen(req, timeout=5)
                 except Exception:
                     # Si falla editar, no pasa nada. El estado ya se guardó.
                     pass
+
+            # Notificar al cliente en el chat interno
+            try:
+                from chat.models import ChatConversation, ChatMessage
+                from django.contrib.auth import get_user_model
+                
+                User = get_user_model()
+                admin_user = User.objects.filter(is_staff=True).first()
+                
+                if admin_user:
+                    # Buscar conversación activa del cliente
+                    conversation = ChatConversation.objects.filter(
+                        user=order.user,
+                        is_active=True
+                    ).first()
+                    
+                    # Si no tiene conversación activa, crear una
+                    if not conversation:
+                        conversation = ChatConversation.objects.create(
+                            user=order.user,
+                            is_active=True,
+                            is_resolved=False
+                        )
+                    
+                    # Crear mensaje de notificación
+                    status_emoji = status_names.get(new_status, new_status)
+                    message_text = (
+                        f"{status_emoji}\n\n"
+                        f"¡Hola! Tu pedido #{order.id} ha sido actualizado.\n\n"
+                        f"📦 Nuevo estado: {status_display}\n"
+                        f"💰 Total: ${order.total_amount}\n\n"
+                        f"Puedes ver los detalles en la sección de Mis Pedidos."
+                    )
+                    
+                    ChatMessage.objects.create(
+                        conversation=conversation,
+                        sender=admin_user,
+                        message=message_text
+                    )
+            except Exception:
+                # Si falla la notificación al chat, no importa
+                pass
 
             return JsonResponse({'ok': True})
 
