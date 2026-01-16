@@ -17,4 +17,8 @@ urlpatterns = [
     path('catalog/product/<int:product_id>/review/add/', web_views.add_review, name='add_review'),
     path('review/<int:review_id>/edit/', web_views.edit_review, name='edit_review'),
     path('review/<int:review_id>/delete/', web_views.delete_review, name='delete_review'),
+    
+    # URLs de favoritos
+    path('catalog/product/<int:product_id>/favorite/toggle/', web_views.toggle_favorite, name='toggle_favorite'),
+    path('my-favorites/', web_views.my_favorites, name='my_favorites'),
 ]

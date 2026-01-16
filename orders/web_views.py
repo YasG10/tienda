@@ -1,6 +1,7 @@
 from django.shortcuts import render, redirect, get_object_or_404
 from django.views.decorators.http import require_POST
 from django.contrib.auth.decorators import login_required
+from django.http import JsonResponse
 from catalog.models import Product
 from .services import OrderService
 from addresses.models import Address
@@ -39,6 +40,20 @@ def cart_add(request, product_id):
     qty = int(request.POST.get('quantity', 1))
     cart[pid] = cart.get(pid, 0) + qty
     request.session.modified = True
+    
+    # Si es una petición AJAX, devolver JSON
+    if request.headers.get('X-Requested-With') == 'XMLHttpRequest':
+        from catalog.models import Product
+        cart_count = sum(cart.values())
+        product = Product.objects.get(id=product_id)
+        return JsonResponse({
+            'success': True,
+            'cart_count': cart_count,
+            'message': f'{product.name} agregado al carrito',
+            'product_name': product.name,
+            'quantity': qty
+        })
+    
     return redirect('orders:cart')
 
 

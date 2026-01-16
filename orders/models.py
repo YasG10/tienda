@@ -13,11 +13,11 @@ class Order(models.Model):
     STATUS_CANCELLED = 'CANCELLED'
 
     STATUS_CHOICES = (
-        (STATUS_PENDING, 'Pending'),
-        (STATUS_CONFIRMED, 'Confirmed'),
-        (STATUS_ON_THE_WAY, 'On the way'),
-        (STATUS_DELIVERED, 'Delivered'),
-        (STATUS_CANCELLED, 'Cancelled'),
+        (STATUS_PENDING, 'Pendiente'),
+        (STATUS_CONFIRMED, 'Confirmado'),
+        (STATUS_ON_THE_WAY, 'En camino'),
+        (STATUS_DELIVERED, 'Entregado'),
+        (STATUS_CANCELLED, 'Cancelado'),
     )
 
     user = models.ForeignKey(

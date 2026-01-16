@@ -233,3 +233,46 @@ def delete_review(request, review_id):
     return render(request, 'catalog/delete_review.html', {
         'review': review
     })
+
+
+@login_required
+def toggle_favorite(request, product_id):
+    """Vista para agregar/quitar producto de favoritos"""
+    if request.method != 'POST':
+        return JsonResponse({'error': 'Método no permitido'}, status=405)
+    
+    product = get_object_or_404(Product, id=product_id)
+    user = request.user
+    
+    if product in user.favorite_products.all():
+        user.favorite_products.remove(product)
+        is_favorite = False
+        message = f'{product.name} eliminado de favoritos'
+    else:
+        user.favorite_products.add(product)
+        is_favorite = True
+        message = f'{product.name} agregado a favoritos'
+    
+    favorites_count = user.favorite_products.count()
+    
+    return JsonResponse({
+        'success': True,
+        'is_favorite': is_favorite,
+        'message': message,
+        'favorites_count': favorites_count
+    })
+
+
+@login_required
+def my_favorites(request):
+    """Vista para mostrar los productos favoritos del usuario"""
+    favorites = request.user.favorite_products.filter(is_active=True)
+    
+    paginator = Paginator(favorites, 12)
+    page_number = request.GET.get('page', 1)
+    page_obj = paginator.get_page(page_number)
+    
+    return render(request, 'catalog/my_favorites.html', {
+        'favorites': page_obj,
+        'total_favorites': favorites.count()
+    })

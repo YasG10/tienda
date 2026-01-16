@@ -1,24 +1,172 @@
 {% extends "base.html" %}
-{% block title %}Ofertas Flash{% endblock %}
+{% load static %}
+{% block title %}Ofertas Flash 🔥{% endblock %}
+
 {% block content %}
-<section class="max-w-7xl mx-auto py-12 px-4">
-  <h1 class="text-4xl font-bold mb-8 text-center">Ofertas Flash</h1>
-  <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-8">
-    {% for producto in productos %}
-    <div class="bg-white/80 rounded-xl shadow p-4 flex flex-col items-center">
-      <img src="{{ producto.image.url }}" alt="{{ producto.name }}" class="w-32 h-32 object-cover rounded-lg mb-4">
-      <h2 class="text-lg font-semibold mb-2 text-center">{{ producto.name }}</h2>
-      <div class="mb-2 text-center text-slate-600 text-sm">{{ producto.category }}</div>
-      <div class="flex items-center gap-2 mb-2">
-        <span class="text-xl font-bold text-indigo-600">${{ producto.price_with_discount|floatformat:2 }}</span>
-        <span class="line-through text-slate-400 text-sm">${{ producto.price|floatformat:2 }}</span>
-        <span class="bg-red-100 text-red-600 text-xs font-bold px-2 py-0.5 rounded-full">-{{ producto.discount_percent }}%</span>
-      </div>
-      <a href="{% url 'catalog:product_detail' producto.id %}" class="mt-2 inline-block px-4 py-2 bg-indigo-600 text-white rounded-full hover:bg-indigo-700 transition">Ver producto</a>
+<div class="min-h-screen bg-gradient-to-br from-rose-50 via-white to-purple-50">
+    <!-- Hero Section -->
+    <div class="bg-gradient-to-r from-rose-500 via-pink-500 to-purple-600 text-white py-16 px-4 relative overflow-hidden">
+        <div class="absolute inset-0 opacity-20">
+            <div class="absolute top-0 left-0 w-96 h-96 bg-white rounded-full blur-3xl"></div>
+            <div class="absolute bottom-0 right-0 w-96 h-96 bg-yellow-300 rounded-full blur-3xl"></div>
+        </div>
+        
+        <div class="max-w-7xl mx-auto relative z-10">
+            <div class="text-center">
+                <div class="inline-flex items-center gap-3 bg-white/20 backdrop-blur-lg px-6 py-3 rounded-full mb-6 animate-pulse">
+                    <span class="text-4xl">🔥</span>
+                    <span class="font-black text-lg">OFERTAS LIMITADAS</span>
+                </div>
+                
+                <h1 class="text-5xl md:text-7xl font-black mb-4 tracking-tight">
+                    ¡Super Descuentos!
+                </h1>
+                <p class="text-xl md:text-2xl font-semibold opacity-90 mb-8">
+                    Hasta 70% OFF en productos seleccionados
+                </p>
+                
+                <!-- Countdown Timer -->
+                <div class="flex justify-center gap-4 text-center">
+                    <div class="bg-white/20 backdrop-blur-lg rounded-2xl px-6 py-4">
+                        <div class="text-4xl font-black" id="hours">00</div>
+                        <div class="text-sm font-bold opacity-80">HORAS</div>
+                    </div>
+                    <div class="bg-white/20 backdrop-blur-lg rounded-2xl px-6 py-4">
+                        <div class="text-4xl font-black" id="minutes">00</div>
+                        <div class="text-sm font-bold opacity-80">MIN</div>
+                    </div>
+                    <div class="bg-white/20 backdrop-blur-lg rounded-2xl px-6 py-4">
+                        <div class="text-4xl font-black" id="seconds">00</div>
+                        <div class="text-sm font-bold opacity-80">SEG</div>
+                    </div>
+                </div>
+            </div>
+        </div>
     </div>
-    {% empty %}
-    <div class="col-span-full text-center text-slate-400 py-12">No hay productos en oferta actualmente.</div>
-    {% endfor %}
-  </div>
-</section>
+
+    <!-- Products Grid -->
+    <section class="max-w-7xl mx-auto py-16 px-4">
+        {% if productos %}
+        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+            {% for producto in productos %}
+            <div class="group bg-white rounded-3xl shadow-lg hover:shadow-2xl transition-all duration-300 overflow-hidden transform hover:-translate-y-2 relative">
+                <!-- Badge de descuento -->
+                <div class="absolute top-4 right-4 z-10">
+                    <div class="bg-red-500 text-white px-4 py-2 rounded-full font-black text-lg shadow-lg animate-bounce">
+                        -{{ producto.discount_percent }}%
+                    </div>
+                </div>
+                
+                <!-- Imagen del producto -->
+                <div class="relative overflow-hidden bg-gradient-to-br from-slate-100 to-slate-200 aspect-square">
+                    <img src="{{ producto.image.url }}" 
+                         alt="{{ producto.name }}" 
+                         class="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500">
+                    
+                    <!-- Quick actions overlay -->
+                    <div class="absolute inset-0 bg-black/0 group-hover:bg-black/20 transition-all duration-300 flex items-center justify-center gap-3 opacity-0 group-hover:opacity-100">
+                        <button onclick="addToCart({{ producto.id }})" 
+                                class="bg-white text-slate-900 p-3 rounded-full shadow-lg hover:bg-indigo-600 hover:text-white transition-all transform hover:scale-110">
+                            <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 3h2l.4 2M7 13h10l4-8H5.4M7 13L5.4 5M7 13l-2.293 2.293c-.63.63-.184 1.707.707 1.707H17m0 0a2 2 0 100 4 2 2 0 000-4zm-8 2a2 2 0 11-4 0 2 2 0 014 0z"/>
+                            </svg>
+                        </button>
+                        <button onclick="toggleLike({{ producto.id }}, this)" 
+                                class="bg-white text-slate-900 p-3 rounded-full shadow-lg hover:bg-red-500 hover:text-white transition-all transform hover:scale-110">
+                            <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z"/>
+                            </svg>
+                        </button>
+                    </div>
+                </div>
+                
+                <!-- Info del producto -->
+                <div class="p-6">
+                    <div class="text-xs font-bold text-indigo-600 uppercase tracking-wider mb-2">
+                        {{ producto.category }}
+                    </div>
+                    
+                    <h3 class="text-lg font-black text-slate-900 mb-3 line-clamp-2 min-h-[3.5rem]">
+                        {{ producto.name }}
+                    </h3>
+                    
+                    <!-- Precios -->
+                    <div class="flex items-baseline gap-3 mb-4">
+                        <span class="text-3xl font-black text-indigo-600">
+                            ${{ producto.price_with_discount|floatformat:2 }}
+                        </span>
+                        <span class="text-lg line-through text-slate-400">
+                            ${{ producto.price|floatformat:2 }}
+                        </span>
+                    </div>
+                    
+                    <!-- Stock indicator -->
+                    <div class="flex items-center gap-2 mb-4 text-sm">
+                        <div class="w-2 h-2 bg-green-500 rounded-full animate-pulse"></div>
+                        <span class="font-semibold text-green-600">¡Últimas unidades!</span>
+                    </div>
+                    
+                    <!-- Action button -->
+                    <a href="{% url 'catalog:product_detail' producto.id %}" 
+                       class="block w-full text-center px-6 py-3 bg-gradient-to-r from-indigo-600 to-purple-600 text-white font-black rounded-2xl hover:from-indigo-700 hover:to-purple-700 transition-all shadow-lg hover:shadow-xl transform hover:scale-105 active:scale-95">
+                        Ver Detalles
+                    </a>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+        {% else %}
+        <div class="text-center py-24">
+            <div class="inline-flex items-center justify-center w-32 h-32 bg-gradient-to-br from-slate-100 to-slate-200 rounded-full mb-6">
+                <svg class="w-16 h-16 text-slate-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20 13V6a2 2 0 00-2-2H6a2 2 0 00-2 2v7m16 0v5a2 2 0 01-2 2H6a2 2 0 01-2-2v-5m16 0h-2.586a1 1 0 00-.707.293l-2.414 2.414a1 1 0 01-.707.293h-3.172a1 1 0 01-.707-.293l-2.414-2.414A1 1 0 006.586 13H4"/>
+                </svg>
+            </div>
+            <h3 class="text-2xl font-black text-slate-900 mb-2">No hay ofertas disponibles</h3>
+            <p class="text-slate-600 mb-8">Vuelve pronto para ver nuestras próximas ofertas flash</p>
+            <a href="{% url 'catalog:product_list' %}" 
+               class="inline-flex items-center gap-2 px-8 py-4 bg-indigo-600 text-white font-black rounded-2xl hover:bg-indigo-700 transition-all shadow-lg hover:shadow-xl">
+                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6"/>
+                </svg>
+                Ver Todos los Productos
+            </a>
+        </div>
+        {% endif %}
+    </section>
+</div>
+
+<script>
+// Countdown timer
+function updateCountdown() {
+    const now = new Date();
+    const end = new Date();
+    end.setHours(23, 59, 59, 999);
+    
+    const diff = end - now;
+    
+    const hours = Math.floor(diff / (1000 * 60 * 60));
+    const minutes = Math.floor((diff % (1000 * 60 * 60)) / (1000 * 60));
+    const seconds = Math.floor((diff % (1000 * 60)) / 1000);
+    
+    document.getElementById('hours').textContent = String(hours).padStart(2, '0');
+    document.getElementById('minutes').textContent = String(minutes).padStart(2, '0');
+    document.getElementById('seconds').textContent = String(seconds).padStart(2, '0');
+}
+
+updateCountdown();
+setInterval(updateCountdown, 1000);
+
+// Quick add to cart (placeholder - will implement fully later)
+function addToCart(productId) {
+    alert('Agregando al carrito... (funcionalidad completa próximamente)');
+}
+
+// Toggle like (placeholder - will implement fully later)
+function toggleLike(productId, button) {
+    button.querySelector('svg').classList.toggle('fill-current');
+    button.classList.toggle('bg-red-500');
+    button.classList.toggle('text-white');
+}
+</script>
 {% endblock %}

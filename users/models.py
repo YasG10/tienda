@@ -25,6 +25,12 @@ class User(AbstractUser):
         null=True,
         blank=True
     )
+    
+    favorite_products = models.ManyToManyField(
+        'catalog.Product',
+        related_name='favorited_by',
+        blank=True
+    )
 
     def __str__(self):
         return f"{self.username} ({self.role})"
