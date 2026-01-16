@@ -246,7 +246,7 @@ def telegram_webhook(request):
                         notification_type='order_status',
                         title=f'Pedido #{order.id} actualizado',
                         message=f'Tu pedido ha cambiado a: {status_display}',
-                        link=f'/accounts/orders/'
+                        link=f'/cart/my/'
                     )
             except Exception:
                 # Si falla la notificación al chat, no importa
