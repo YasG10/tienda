@@ -25,15 +25,25 @@ document.addEventListener('DOMContentLoaded', function () {
     if (spinner) spinner.classList.add('hidden');
   };
 
-  // Mostrar spinner al enviar cualquier formulario
+  // Mostrar spinner solo en formularios que requieren procesamiento
   document.querySelectorAll('form').forEach(function (form) {
-    form.addEventListener('submit', function () {
-      showSpinner();
-    });
+    // Solo mostrar spinner en formularios de checkout, login, registro y operaciones importantes
+    var isImportantForm = form.closest('.checkout-form, .login-form, .register-form, .payment-form') ||
+                          form.action.includes('checkout') || 
+                          form.action.includes('login') || 
+                          form.action.includes('register') ||
+                          form.action.includes('payment');
+    
+    if (isImportantForm) {
+      form.addEventListener('submit', function () {
+        showSpinner();
+      });
+    }
   });
 
-  // Mostrar spinner al hacer click en enlaces que navegan (excepto anclas y js)
-  document.querySelectorAll('a').forEach(function (a) {
+  // NO mostrar spinner en navegación normal - solo en operaciones específicas
+  // Si necesitas spinner en algún enlace específico, añade la clase 'show-spinner'
+  document.querySelectorAll('a.show-spinner').forEach(function (a) {
     a.addEventListener('click', function (e) {
       var href = a.getAttribute('href');
       if (href && !href.startsWith('#') && !href.startsWith('javascript:') && a.target !== '_blank') {
