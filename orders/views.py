@@ -105,21 +105,87 @@ def telegram_webhook(request):
             order.status = new_status
             order.save()
 
-            # Acknowledge callback and notify admin
             token = getattr(settings, 'TELEGRAM_BOT_TOKEN', None)
+            
+            # Nombres legibles para los estados
+            status_names = {
+                'PENDING': '⏳ Pendiente',
+                'CONFIRMED': '✅ Confirmado',
+                'ON_THE_WAY': '🚚 En Camino',
+                'DELIVERED': '📦 Entregado',
+                'CANCELLED': '❌ Cancelado'
+            }
+            status_display = status_names.get(new_status, new_status)
+            
+            # Responder al callback (quita el loading del botón)
             if token and callback_id:
                 try:
                     url = f"https://api.telegram.org/bot{token}/answerCallbackQuery"
-                    body = json.dumps({'callback_query_id': callback_id, 'text': f'Estado cambiado a {new_status}'})
+                    body = json.dumps({'callback_query_id': callback_id, 'text': f'✅ Actualizado a {status_display}'})
                     req = urllib.request.Request(url, data=body.encode('utf-8'), headers={'Content-Type': 'application/json'})
                     urllib.request.urlopen(req, timeout=5)
                 except Exception:
                     pass
 
-            # send confirmation message
-            admin_chat = getattr(settings, 'TELEGRAM_ADMIN_ID', None)
-            if admin_chat:
-                send_telegram_message(admin_chat, f'Orden #{order.id} ahora: {order.status}')
+            # Editar el mensaje original para mostrar el nuevo estado
+            if token:
+                try:
+                    chat_id = cq.get('message', {}).get('chat', {}).get('id')
+                    message_id = cq.get('message', {}).get('message_id')
+                    
+                    if chat_id and message_id:
+                        # Escapar caracteres especiales de Markdown
+                        def esc(s):
+                            if s is None:
+                                return ''
+                            return str(s).replace('*', '\\*').replace('_', '\\_').replace('`', '\\`')
+                        
+                        # Obtener datos del pedido
+                        user = order.user
+                        customer_name = esc(user.get_full_name() or user.username)
+                        customer_email = esc(getattr(user, 'email', ''))
+                        customer_phone = esc(getattr(user, 'phone', '') or getattr(order.address, 'phone', ''))
+                        
+                        addr = order.address
+                        address_lines = []
+                        if getattr(addr, 'street', None):
+                            address_lines.append(esc(addr.street))
+                        if getattr(addr, 'city', None) or getattr(addr, 'province', None):
+                            address_lines.append(esc(f"{addr.city}, {addr.province}"))
+                        if getattr(addr, 'reference', None):
+                            address_lines.append(f"_{esc(addr.reference)}_")
+                        
+                        items_lines = []
+                        for it in order.items.all():
+                            name = esc(it.product.name)
+                            items_lines.append(f"• {name} x{it.quantity} @ ${it.price}")
+                        
+                        # Construir mensaje actualizado
+                        updated_text = (
+                            f"{status_display}\n"
+                            f"*Pedido #{order.id}*\n\n"
+                            f"👤 *Cliente:* {customer_name}\n"
+                            f"📧 {customer_email}\n"
+                            f"📱 {customer_phone}\n\n"
+                            f"📍 *Dirección:*\n" + "\n".join(address_lines) + "\n\n"
+                            f"🛍️ *Items:*\n" + "\n".join(items_lines) + "\n\n"
+                            f"💰 *Total:* ${order.total_amount}\n\n"
+                            f"_Actualizado: {order.updated_at.strftime('%d/%m/%Y %H:%M')}_"
+                        )
+                        
+                        # Editar el mensaje
+                        url = f"https://api.telegram.org/bot{token}/editMessageText"
+                        body = json.dumps({
+                            'chat_id': chat_id,
+                            'message_id': message_id,
+                            'text': updated_text,
+                            'parse_mode': 'Markdown'
+                        })
+                        req = urllib.request.Request(url, data=body.encode('utf-8'), headers={'Content-Type': 'application/json'})
+                        urllib.request.urlopen(req, timeout=5)
+                except Exception:
+                    # Si falla editar, no pasa nada. El estado ya se guardó.
+                    pass
 
             return JsonResponse({'ok': True})
 

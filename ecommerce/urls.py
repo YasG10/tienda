@@ -55,7 +55,7 @@ urlpatterns = [
     path('accounts/', include('django.contrib.auth.urls')),
     path('cart/', include(('orders.urls_web', 'orders'), namespace='orders')),
     path('addresses/', include(('addresses.urls_web', 'addresses'), namespace='addresses')),
-
+    path('chat/', include(('chat.urls', 'chat'), namespace='chat')),
 
 ]
 

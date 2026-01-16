@@ -97,8 +97,15 @@
 
                     <a href="{% url 'catalog:ofertas' %}" class="text-sm font-bold text-red-600 hover:text-red-700 px-3 py-2 transition bg-red-50 hover:bg-red-100" style="border-radius: 0.5rem;">🔥 Ofertas</a>
 
+                    {% if user.is_authenticated and not user.is_staff %}
+                        <a href="{% url 'chat:my_conversations' %}" class="text-sm font-semibold text-purple-700 hover:text-purple-900 px-3 py-2 transition bg-purple-50 hover:bg-purple-100" style="border-radius: 0.5rem;">💬 Chat Soporte</a>
+                    {% endif %}
+
                     {% if user.is_staff %}
                         <a href="{% url 'admin_dashboard' %}" class="text-sm font-semibold text-indigo-700 hover:text-indigo-900 px-3 py-2 transition bg-indigo-50 hover:bg-indigo-100" style="border-radius: 0.5rem;">⚡ Panel Admin</a>
+                        <a href="{% url 'chat:my_conversations' %}" class="relative text-sm font-semibold text-purple-700 hover:text-purple-900 px-3 py-2 transition bg-purple-50 hover:bg-purple-100" style="border-radius: 0.5rem;">
+                            💬 Soporte
+                        </a>
                     {% endif %}
 
                     <div class="h-6 w-px bg-slate-200 mx-2"></div>
@@ -371,5 +378,8 @@
 
     <script src="{% static 'js/ui.js' %}"></script>
     <script src="{% static 'js/form-floats.js' %}"></script>
+    
+    <!-- Chat Widget - Desactivado temporalmente -->
+    {% comment %}{% include 'chat/widget.html' %}{% endcomment %}
 </body>
 </html>

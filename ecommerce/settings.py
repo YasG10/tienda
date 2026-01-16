@@ -55,6 +55,7 @@ INSTALLED_APPS = [
     'inventory',
     'addresses',
     'core',
+    'chat',
 ]
 
 MIDDLEWARE = [
@@ -83,6 +84,7 @@ TEMPLATES = [
                 'django.contrib.auth.context_processors.auth',
                 'django.contrib.messages.context_processors.messages',
                 'core.context_processors.cart_count',
+                # 'chat.context_processors.chat_notifications',  # Comentado temporalmente
             ],
         },
     },
