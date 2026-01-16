@@ -76,15 +76,19 @@ def my_conversations(request):
     """Lista de conversaciones del usuario"""
     if request.user.is_staff:
         # Admin ve todas las conversaciones
-        conversations = ChatConversation.objects.all().annotate(
-            unread_count=Count('messages', filter=Q(messages__is_read=False) & ~Q(messages__sender=request.user))
-        )
+        conversations = ChatConversation.objects.all()
     else:
         # Cliente ve solo sus conversaciones
         conversations = ChatConversation.objects.filter(user=request.user)
     
+    # Agregar unread count a cada conversación
+    conversations_with_unread = []
+    for conv in conversations:
+        conv.unread_for_current_user = conv.get_unread_count_for_user(request.user)
+        conversations_with_unread.append(conv)
+    
     return render(request, 'chat/conversation_list.html', {
-        'conversations': conversations
+        'conversations': conversations_with_unread
     })
 
 

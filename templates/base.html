@@ -412,183 +412,214 @@
     {% if user.is_authenticated %}
     <!-- Notifications System -->
     <script>
-        let notificationsOpen = false;
-        let unreadCount = 0;
+        // Validar que todos los elementos existan antes de ejecutar
         const notifBtn = document.getElementById('notifications-btn');
         const notifDropdown = document.getElementById('notifications-dropdown');
         const notifList = document.getElementById('notifications-list');
         const notifBadge = document.getElementById('notif-badge');
         const markAllReadBtn = document.getElementById('mark-all-read-btn');
 
-        // Toggle dropdown
-        notifBtn?.addEventListener('click', (e) => {
-            e.stopPropagation();
-            notificationsOpen = !notificationsOpen;
-            if (notificationsOpen) {
-                notifDropdown.classList.remove('hidden');
-                loadNotifications();
-            } else {
-                notifDropdown.classList.add('hidden');
-            }
-        });
+        if (!notifBtn || !notifDropdown || !notifList || !notifBadge) {
+            console.warn('Notifications elements not found');
+        } else {
+            let notificationsOpen = false;
+            let unreadCount = 0;
 
-        // Close on outside click
-        document.addEventListener('click', (e) => {
-            if (!notifDropdown.contains(e.target) && !notifBtn.contains(e.target)) {
-                notifDropdown.classList.add('hidden');
-                notificationsOpen = false;
-            }
-        });
+            // Toggle dropdown
+            notifBtn.addEventListener('click', (e) => {
+                e.stopPropagation();
+                notificationsOpen = !notificationsOpen;
+                if (notificationsOpen) {
+                    notifDropdown.classList.remove('hidden');
+                    loadNotifications();
+                } else {
+                    notifDropdown.classList.add('hidden');
+                }
+            });
 
-        // Load notifications
-        async function loadNotifications() {
-            try {
-                const response = await fetch('/api/notifications/');
-                const data = await response.json();
-                
-                unreadCount = data.unread_count;
-                updateBadge();
-                
-                if (data.notifications.length === 0) {
+            // Close on outside click
+            document.addEventListener('click', (e) => {
+                if (!notifDropdown.contains(e.target) && !notifBtn.contains(e.target)) {
+                    notifDropdown.classList.add('hidden');
+                    notificationsOpen = false;
+                }
+            });
+
+            // Load notifications
+            async function loadNotifications() {
+                try {
+                    const response = await fetch('/api/notifications/');
+                    
+                    if (!response.ok) {
+                        throw new Error(`HTTP error! status: ${response.status}`);
+                    }
+                    
+                    const data = await response.json();
+                    
+                    unreadCount = data.unread_count || 0;
+                    updateBadge();
+                    
+                    if (!data.notifications || data.notifications.length === 0) {
+                        notifList.innerHTML = `
+                            <div class="flex items-center justify-center py-12 text-slate-400">
+                                <div class="text-center">
+                                    <svg class="w-12 h-12 mx-auto mb-3 opacity-50" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20 13V6a2 2 0 00-2-2H6a2 2 0 00-2 2v7m16 0v5a2 2 0 01-2 2H6a2 2 0 01-2-2v-5m16 0h-2.586a1 1 0 00-.707.293l-2.414 2.414a1 1 0 01-.707.293h-3.172a1 1 0 01-.707-.293l-2.414-2.414A1 1 0 006.586 13H4"/>
+                                    </svg>
+                                    <p class="text-sm font-semibold">Sin notificaciones</p>
+                                </div>
+                            </div>
+                        `;
+                        return;
+                    }
+                    
+                    notifList.innerHTML = data.notifications.map(notif => {
+                        const typeColors = {
+                            'order_status': 'bg-blue-100 text-blue-700',
+                            'new_message': 'bg-purple-100 text-purple-700',
+                            'system': 'bg-slate-100 text-slate-700',
+                            'promotion': 'bg-green-100 text-green-700'
+                        };
+                        const bgClass = notif.is_read ? 'bg-slate-50' : 'bg-white';
+                        const typeClass = typeColors[notif.type] || 'bg-slate-100 text-slate-700';
+                        
+                        return `
+                            <div class="${bgClass} p-4 border-b border-slate-100 hover:bg-indigo-50/30 transition cursor-pointer notification-item" 
+                                 data-id="${notif.id}" 
+                                 data-link="${notif.link || ''}"
+                                 data-read="${notif.is_read}">
+                                <div class="flex items-start gap-3">
+                                    <div class="flex-shrink-0 mt-0.5">
+                                        <div class="${typeClass} w-10 h-10 rounded-xl flex items-center justify-center">
+                                            ${getNotifIcon(notif.type)}
+                                        </div>
+                                    </div>
+                                    <div class="flex-1 min-w-0">
+                                        <div class="flex items-start justify-between gap-2 mb-1">
+                                            <h4 class="text-sm font-bold text-slate-900 ${notif.is_read ? '' : 'font-black'}">${notif.title}</h4>
+                                            ${!notif.is_read ? '<div class="w-2 h-2 bg-red-500 rounded-full flex-shrink-0 mt-1.5"></div>' : ''}
+                                        </div>
+                                        <p class="text-xs text-slate-600 mb-2">${notif.message}</p>
+                                        <p class="text-xs text-slate-400">${notif.created_at}</p>
+                                    </div>
+                                </div>
+                            </div>
+                        `;
+                    }).join('');
+                    
+                    // Add click handlers
+                    document.querySelectorAll('.notification-item').forEach(item => {
+                        item.addEventListener('click', async () => {
+                            const id = item.dataset.id;
+                            const link = item.dataset.link;
+                            const isRead = item.dataset.read === 'true';
+                            
+                            if (!isRead) {
+                                await markAsRead(id);
+                            }
+                            
+                            if (link && link !== 'None' && link !== '') {
+                                window.location.href = link;
+                            }
+                        });
+                    });
+                    
+                } catch (error) {
+                    console.error('Error loading notifications:', error);
                     notifList.innerHTML = `
                         <div class="flex items-center justify-center py-12 text-slate-400">
                             <div class="text-center">
-                                <svg class="w-12 h-12 mx-auto mb-3 opacity-50" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20 13V6a2 2 0 00-2-2H6a2 2 0 00-2 2v7m16 0v5a2 2 0 01-2 2H6a2 2 0 01-2-2v-5m16 0h-2.586a1 1 0 00-.707.293l-2.414 2.414a1 1 0 01-.707.293h-3.172a1 1 0 01-.707-.293l-2.414-2.414A1 1 0 006.586 13H4"/>
+                                <svg class="w-12 h-12 mx-auto mb-3 opacity-50 text-red-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/>
                                 </svg>
-                                <p class="text-sm font-semibold">Sin notificaciones</p>
+                                <p class="text-sm font-semibold text-red-600">Error al cargar notificaciones</p>
                             </div>
                         </div>
                     `;
-                    return;
                 }
-                
-                notifList.innerHTML = data.notifications.map(notif => {
-                    const typeColors = {
-                        'order_status': 'bg-blue-100 text-blue-700',
-                        'new_message': 'bg-purple-100 text-purple-700',
-                        'system': 'bg-slate-100 text-slate-700',
-                        'promotion': 'bg-green-100 text-green-700'
-                    };
-                    const bgClass = notif.is_read ? 'bg-slate-50' : 'bg-white';
-                    const typeClass = typeColors[notif.type] || 'bg-slate-100 text-slate-700';
-                    
-                    return `
-                        <div class="${bgClass} p-4 border-b border-slate-100 hover:bg-indigo-50/30 transition cursor-pointer notification-item" 
-                             data-id="${notif.id}" 
-                             data-link="${notif.link || ''}"
-                             data-read="${notif.is_read}">
-                            <div class="flex items-start gap-3">
-                                <div class="flex-shrink-0 mt-0.5">
-                                    <div class="${typeClass} w-10 h-10 rounded-xl flex items-center justify-center">
-                                        ${getNotifIcon(notif.type)}
-                                    </div>
-                                </div>
-                                <div class="flex-1 min-w-0">
-                                    <div class="flex items-start justify-between gap-2 mb-1">
-                                        <h4 class="text-sm font-bold text-slate-900 ${notif.is_read ? '' : 'font-black'}">${notif.title}</h4>
-                                        ${!notif.is_read ? '<div class="w-2 h-2 bg-red-500 rounded-full flex-shrink-0 mt-1.5"></div>' : ''}
-                                    </div>
-                                    <p class="text-xs text-slate-600 mb-2">${notif.message}</p>
-                                    <p class="text-xs text-slate-400">${notif.created_at}</p>
-                                </div>
-                            </div>
-                        </div>
-                    `;
-                }).join('');
-                
-                // Add click handlers
-                document.querySelectorAll('.notification-item').forEach(item => {
-                    item.addEventListener('click', async () => {
-                        const id = item.dataset.id;
-                        const link = item.dataset.link;
-                        const isRead = item.dataset.read === 'true';
-                        
-                        if (!isRead) {
-                            await markAsRead(id);
-                        }
-                        
-                        if (link) {
-                            window.location.href = link;
+            }
+
+            function getNotifIcon(type) {
+                const icons = {
+                    'order_status': '<svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z"/></svg>',
+                    'new_message': '<svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 10h.01M12 10h.01M16 10h.01M9 16H5a2 2 0 01-2-2V6a2 2 0 012-2h14a2 2 0 012 2v8a2 2 0 01-2 2h-5l-5 5v-5z"/></svg>',
+                    'system': '<svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>',
+                    'promotion': '<svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v13m0-13V6a2 2 0 112 2h-2zm0 0V5.5A2.5 2.5 0 109.5 8H12zm-7 4h14M5 12a2 2 0 110-4h14a2 2 0 110 4M5 12v7a2 2 0 002 2h10a2 2 0 002-2v-7"/></svg>'
+                };
+                return icons[type] || icons.system;
+            }
+
+            async function markAsRead(id) {
+                try {
+                    const response = await fetch(`/api/notifications/${id}/mark-read/`, {
+                        method: 'POST',
+                        headers: {
+                            'X-CSRFToken': '{{ csrf_token }}',
+                            'Content-Type': 'application/json'
                         }
                     });
-                });
-                
-            } catch (error) {
-                console.error('Error loading notifications:', error);
-            }
-        }
-
-        function getNotifIcon(type) {
-            const icons = {
-                'order_status': '<svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z"/></svg>',
-                'new_message': '<svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 10h.01M12 10h.01M16 10h.01M9 16H5a2 2 0 01-2-2V6a2 2 0 012-2h14a2 2 0 012 2v8a2 2 0 01-2 2h-5l-5 5v-5z"/></svg>',
-                'system': '<svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>',
-                'promotion': '<svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v13m0-13V6a2 2 0 112 2h-2zm0 0V5.5A2.5 2.5 0 109.5 8H12zm-7 4h14M5 12a2 2 0 110-4h14a2 2 0 110 4M5 12v7a2 2 0 002 2h10a2 2 0 002-2v-7"/></svg>'
-            };
-            return icons[type] || icons.system;
-        }
-
-        async function markAsRead(id) {
-            try {
-                await fetch(`/api/notifications/${id}/mark-read/`, {
-                    method: 'POST',
-                    headers: {
-                        'X-CSRFToken': '{{ csrf_token }}',
-                        'Content-Type': 'application/json'
+                    
+                    if (response.ok) {
+                        unreadCount = Math.max(0, unreadCount - 1);
+                        updateBadge();
                     }
-                });
-                unreadCount = Math.max(0, unreadCount - 1);
-                updateBadge();
-            } catch (error) {
-                console.error('Error marking as read:', error);
-            }
-        }
-
-        markAllReadBtn?.addEventListener('click', async () => {
-            try {
-                await fetch('/api/notifications/mark-all-read/', {
-                    method: 'POST',
-                    headers: {
-                        'X-CSRFToken': '{{ csrf_token }}',
-                        'Content-Type': 'application/json'
-                    }
-                });
-                unreadCount = 0;
-                updateBadge();
-                loadNotifications();
-            } catch (error) {
-                console.error('Error marking all as read:', error);
-            }
-        });
-
-        function updateBadge() {
-            if (unreadCount > 0) {
-                notifBadge.textContent = unreadCount;
-                notifBadge.classList.remove('hidden');
-                notifBadge.classList.add('inline-flex');
-            } else {
-                notifBadge.classList.add('hidden');
-                notifBadge.classList.remove('inline-flex');
-            }
-        }
-
-        // Poll for new notifications every 15 seconds
-        setInterval(async () => {
-            if (!notificationsOpen) {
-                try {
-                    const response = await fetch('/api/notifications/');
-                    const data = await response.json();
-                    unreadCount = data.unread_count;
-                    updateBadge();
                 } catch (error) {
-                    console.error('Error checking notifications:', error);
+                    console.error('Error marking as read:', error);
                 }
             }
-        }, 15000);
 
-        // Load on page load
-        loadNotifications();
+            if (markAllReadBtn) {
+                markAllReadBtn.addEventListener('click', async () => {
+                    try {
+                        const response = await fetch('/api/notifications/mark-all-read/', {
+                            method: 'POST',
+                            headers: {
+                                'X-CSRFToken': '{{ csrf_token }}',
+                                'Content-Type': 'application/json'
+                            }
+                        });
+                        
+                        if (response.ok) {
+                            unreadCount = 0;
+                            updateBadge();
+                            loadNotifications();
+                        }
+                    } catch (error) {
+                        console.error('Error marking all as read:', error);
+                    }
+                });
+            }
+
+            function updateBadge() {
+                if (unreadCount > 0) {
+                    notifBadge.textContent = unreadCount;
+                    notifBadge.classList.remove('hidden');
+                    notifBadge.classList.add('inline-flex');
+                } else {
+                    notifBadge.classList.add('hidden');
+                    notifBadge.classList.remove('inline-flex');
+                }
+            }
+
+            // Poll for new notifications every 15 seconds
+            setInterval(async () => {
+                if (!notificationsOpen) {
+                    try {
+                        const response = await fetch('/api/notifications/');
+                        if (response.ok) {
+                            const data = await response.json();
+                            unreadCount = data.unread_count || 0;
+                            updateBadge();
+                        }
+                    } catch (error) {
+                        // Silently fail for polling
+                    }
+                }
+            }, 15000);
+
+            // Load on page load
+            loadNotifications();
+        }
     </script>
     {% endif %}
 
