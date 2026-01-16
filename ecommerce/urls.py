@@ -25,6 +25,9 @@ from orders.views import telegram_webhook
 from django.conf import settings
 from django.conf.urls.static import static
 
+# Custom error handlers
+handler404 = 'core.views.custom_404'
+
 from rest_framework_simplejwt.views import (
     TokenObtainPairView,
     TokenRefreshView,

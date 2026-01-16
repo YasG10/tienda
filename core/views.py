@@ -29,3 +29,9 @@ def landing(request):
 	return render(request, 'landing.html', {
 		'featured_products': featured_products,
 	})
+
+
+# Custom 404 handler
+def custom_404(request, exception):
+	"""Handle 404 errors and render custom 404 page."""
+	return render(request, '404.html', status=404)

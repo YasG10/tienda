@@ -23,7 +23,7 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 SECRET_KEY = 'django-insecure-ybow(2u11kiu5f#g8$ot%y2-%iuei-8+ftli9(!f5h^9#g8y_n'
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = True
+DEBUG = False
 
 ALLOWED_HOSTS = [
     "tienda-lrl5.onrender.com",
@@ -205,7 +205,7 @@ STORAGES = {
     },
     # Para archivos Estáticos (CSS, JS) -> WhiteNoise (ya lo tienes configurado en middleware)
     "staticfiles": {
-        "BACKEND": "whitenoise.storage.CompressedManifestStaticFilesStorage",
+        "BACKEND": "whitenoise.storage.CompressedStaticFilesStorage",
     },
 }
 
