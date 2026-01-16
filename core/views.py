@@ -43,8 +43,9 @@ def custom_404(request, exception):
 @login_required
 def notifications_list(request):
 	"""Get all notifications for current user."""
-	notifications = Notification.objects.filter(user=request.user)[:20]
-	unread_count = notifications.filter(is_read=False).count()
+	notifications_queryset = Notification.objects.filter(user=request.user)
+	unread_count = notifications_queryset.filter(is_read=False).count()
+	notifications = notifications_queryset[:20]
 	
 	data = {
 		'notifications': [{
