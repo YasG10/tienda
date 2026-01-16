@@ -165,7 +165,7 @@ DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 AUTH_USER_MODEL = 'users.User'
 
 # Where to redirect users after login (named URL or path)
-LOGIN_REDIRECT_URL = '/accounts/profile/'
+LOGIN_REDIRECT_URL = '/'
 
 # After logout, redirect users back to the login page
 LOGOUT_REDIRECT_URL = '/accounts/login/'
