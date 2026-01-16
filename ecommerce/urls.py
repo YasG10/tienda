@@ -43,6 +43,11 @@ urlpatterns = [
     path('api/orders/', include('orders.urls')),
 
     path('api/users/', include('users.urls')),
+    
+    # Notification API
+    path('api/notifications/', core_views.notifications_list, name='notifications_list'),
+    path('api/notifications/<int:notification_id>/mark-read/', core_views.notification_mark_read, name='notification_mark_read'),
+    path('api/notifications/mark-all-read/', core_views.notification_mark_all_read, name='notification_mark_all_read'),
 
     path('', core_views.landing, name='home'),
     path('newsletter/', core_views.newsletter_signup, name='home_newsletter'),

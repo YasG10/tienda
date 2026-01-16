@@ -4,99 +4,193 @@
 {% block title %}Chat — Soporte{% endblock %}
 
 {% block content %}
-<div class="max-w-4xl mx-auto py-8 px-4">
-    
-    <div class="mb-6">
-        <a href="{% url 'chat:my_conversations' %}" class="inline-flex items-center gap-2 text-indigo-600 hover:text-indigo-700 font-semibold">
-            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"></path>
-            </svg>
-            Volver a conversaciones
-        </a>
-    </div>
-
-    <div class="bg-white border border-slate-200 shadow-xl overflow-hidden" style="border-radius: 1.5rem;">
+<div class="min-h-screen bg-gradient-to-br from-slate-50 via-white to-blue-50 py-8 px-4">
+    <div class="max-w-5xl mx-auto">
         
-        <!-- Header -->
-        <div class="bg-gradient-to-r from-indigo-600 to-purple-600 px-6 py-4 text-white">
-            <div class="flex items-center justify-between">
-                <div class="flex items-center gap-3">
-                    <div class="w-10 h-10 bg-white/20 backdrop-blur-sm flex items-center justify-center font-bold text-lg" style="border-radius: 0.75rem;">
-                        {{ conversation.user.username|slice:":1"|upper }}
-                    </div>
-                    <div>
-                        <h2 class="text-lg font-bold">
-                            {% if user.is_staff %}
-                                {{ conversation.user.username }}
-                            {% else %}
-                                Soporte Fluxa shop
-                            {% endif %}
-                        </h2>
-                        <p class="text-white/80 text-sm">
-                            {% if conversation.is_resolved %}Conversación cerrada{% else %}En línea{% endif %}
-                        </p>
-                    </div>
-                </div>
-                
-                {% if user.is_staff and not conversation.is_resolved %}
-                <button onclick="closeConversation()" class="px-4 py-2 bg-white/20 hover:bg-white/30 backdrop-blur-sm font-semibold transition" style="border-radius: 0.5rem;">
-                    Cerrar chat
-                </button>
-                {% endif %}
-            </div>
+        <!-- Back Button -->
+        <div class="mb-6">
+            <a href="{% url 'chat:my_conversations' %}" 
+               class="inline-flex items-center gap-2 text-blue-600 hover:text-blue-700 font-bold transition-colors">
+                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18"/>
+                </svg>
+                Volver a conversaciones
+            </a>
         </div>
 
-        <!-- Área de mensajes -->
-        <div id="messages-container" class="p-6 space-y-4 bg-slate-50 overflow-y-auto" style="height: 500px;">
-            {% for message in messages %}
-            <div class="message flex {% if message.sender == user %}justify-end{% else %}justify-start{% endif %}" data-message-id="{{ message.id }}">
-                <div class="max-w-xs lg:max-w-md">
-                    <div class="flex items-end gap-2 {% if message.sender == user %}flex-row-reverse{% endif %}">
-                        <div class="flex-shrink-0 w-8 h-8 {% if message.sender.is_staff %}bg-gradient-to-br from-indigo-600 to-purple-600{% else %}bg-slate-400{% endif %} text-white flex items-center justify-center font-bold text-xs" style="border-radius: 0.5rem;">
-                            {{ message.sender.username|slice:":1"|upper }}
-                        </div>
-                        <div>
-                            <div class="{% if message.sender == user %}bg-gradient-to-r from-indigo-600 to-purple-600 text-white{% else %}bg-white border border-slate-200{% endif %} px-4 py-2 shadow-sm" style="border-radius: 1rem; {% if message.sender == user %}border-bottom-right-radius: 0.25rem;{% else %}border-bottom-left-radius: 0.25rem;{% endif %}">
-                                <p class="text-sm">{{ message.message }}</p>
+        <!-- Chat Container -->
+        <div class="bg-white rounded-3xl shadow-2xl overflow-hidden border-2 border-slate-100">
+            
+            <!-- Header -->
+            <div class="bg-gradient-to-r from-blue-600 via-indigo-600 to-purple-600 px-8 py-6">
+                <div class="flex items-center justify-between">
+                    <div class="flex items-center gap-4">
+                        <!-- Avatar with Status -->
+                        <div class="relative">
+                            <div class="w-14 h-14 bg-white/20 backdrop-blur-sm rounded-2xl flex items-center justify-center text-white font-black text-2xl shadow-lg">
+                                {{ conversation.user.username|slice:":1"|upper }}
                             </div>
-                            <p class="text-xs text-slate-500 mt-1 {% if message.sender == user %}text-right{% endif %}">
-                                {{ message.created_at|date:"H:i" }}
-                            </p>
+                            {% if not conversation.is_resolved %}
+                            <div class="absolute -bottom-1 -right-1 w-5 h-5 bg-green-400 rounded-full border-4 border-white animate-pulse"></div>
+                            {% endif %}
+                        </div>
+                        
+                        <!-- User Info -->
+                        <div>
+                            <h2 class="text-2xl font-black text-white mb-1">
+                                {% if user.is_staff %}
+                                    {{ conversation.user.username }}
+                                {% else %}
+                                    Soporte Fluxa Shop
+                                {% endif %}
+                            </h2>
+                            <div class="flex items-center gap-2">
+                                {% if conversation.is_resolved %}
+                                <span class="inline-flex items-center gap-1.5 px-3 py-1 bg-white/20 backdrop-blur-sm text-white text-xs font-bold uppercase tracking-wide rounded-full">
+                                    <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M5 13l4 4L19 7"/>
+                                    </svg>
+                                    Conversación cerrada
+                                </span>
+                                {% else %}
+                                <span class="inline-flex items-center gap-1.5 px-3 py-1 bg-green-500/90 backdrop-blur-sm text-white text-xs font-bold uppercase tracking-wide rounded-full">
+                                    <div class="w-2 h-2 bg-white rounded-full animate-pulse"></div>
+                                    En línea
+                                </span>
+                                {% endif %}
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Close Button (Staff Only) -->
+                    {% if user.is_staff and not conversation.is_resolved %}
+                    <button onclick="closeConversation()" 
+                            class="px-6 py-3 bg-white/20 hover:bg-white/30 backdrop-blur-sm text-white font-bold rounded-xl transition-all transform hover:scale-105 active:scale-95 flex items-center gap-2">
+                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
+                        </svg>
+                        Cerrar Chat
+                    </button>
+                    {% endif %}
+                </div>
+            </div>
+
+            <!-- Messages Container -->
+            <div id="messages-container" class="p-8 space-y-6 bg-gradient-to-br from-slate-50 to-white overflow-y-auto" style="height: 600px;">
+                {% for message in messages %}
+                <div class="message flex {% if message.sender == user %}justify-end{% else %}justify-start{% endif %} animate-fade-in" data-message-id="{{ message.id }}">
+                    <div class="max-w-lg">
+                        <div class="flex items-end gap-3 {% if message.sender == user %}flex-row-reverse{% endif %}">
+                            <!-- Mini Avatar -->
+                            <div class="flex-shrink-0 w-10 h-10 {% if message.sender.is_staff %}bg-gradient-to-br from-blue-600 to-indigo-600{% else %}bg-gradient-to-br from-slate-400 to-slate-500{% endif %} rounded-xl flex items-center justify-center text-white font-bold text-sm shadow-lg">
+                                {{ message.sender.username|slice:":1"|upper }}
+                            </div>
+                            
+                            <!-- Message Bubble -->
+                            <div class="relative group">
+                                <div class="{% if message.sender == user %}bg-gradient-to-br from-blue-600 to-indigo-600 text-white{% else %}bg-white border-2 border-slate-100 text-slate-800{% endif %} px-5 py-3.5 shadow-lg rounded-2xl {% if message.sender == user %}rounded-br-md{% else %}rounded-bl-md{% endif %} transform transition-all group-hover:scale-[1.02]">
+                                    <p class="text-sm leading-relaxed whitespace-pre-wrap break-words">{{ message.message }}</p>
+                                </div>
+                                
+                                <!-- Timestamp -->
+                                <div class="flex items-center gap-1.5 mt-1.5 {% if message.sender == user %}justify-end{% endif %}">
+                                    <svg class="w-3.5 h-3.5 text-slate-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"/>
+                                    </svg>
+                                    <span class="text-xs font-medium text-slate-500">{{ message.created_at|date:"H:i" }}</span>
+                                </div>
+                            </div>
                         </div>
                     </div>
                 </div>
+                {% endfor %}
             </div>
-            {% endfor %}
+
+            <!-- Message Input -->
+            {% if not conversation.is_resolved %}
+            <div class="p-6 bg-white border-t-2 border-slate-100">
+                <form id="message-form" class="flex gap-3">
+                    {% csrf_token %}
+                    <div class="flex-1 relative">
+                        <input 
+                            type="text" 
+                            id="message-input" 
+                            placeholder="Escribe tu mensaje..." 
+                            class="w-full px-6 py-4 bg-slate-50 border-2 border-slate-200 rounded-2xl text-slate-800 placeholder-slate-400 focus:border-blue-500 focus:ring-4 focus:ring-blue-100 transition-all font-medium"
+                            required
+                            autocomplete="off"
+                        >
+                    </div>
+                    
+                    <button type="submit" 
+                            class="px-8 py-4 bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 text-white font-black rounded-2xl shadow-lg shadow-blue-200 hover:shadow-xl transition-all transform hover:scale-105 active:scale-95 flex items-center gap-2">
+                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 19l9 2-9-18-9 18 9-2zm0 0v-8"/>
+                        </svg>
+                        <span>Enviar</span>
+                    </button>
+                </form>
+            </div>
+            {% else %}
+            <!-- Conversation Closed State -->
+            <div class="p-8 bg-slate-100 border-t-2 border-slate-200 text-center">
+                <div class="inline-flex items-center gap-3 px-6 py-3 bg-white rounded-2xl shadow-lg border-2 border-slate-200">
+                    <svg class="w-5 h-5 text-slate-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"/>
+                    </svg>
+                    <span class="text-slate-700 font-bold">Esta conversación ha sido cerrada</span>
+                </div>
+            </div>
+            {% endif %}
         </div>
 
-        <!-- Formulario de envío -->
-        {% if not conversation.is_resolved %}
-        <div class="p-4 bg-white border-t border-slate-200">
-            <form id="message-form" class="flex gap-2">
-                {% csrf_token %}
-                <input 
-                    type="text" 
-                    id="message-input" 
-                    placeholder="Escribe tu mensaje..." 
-                    class="flex-1 px-4 py-2 border border-slate-200 focus:border-indigo-400 focus:ring-2 focus:ring-indigo-100 transition" 
-                    style="border-radius: 0.75rem;"
-                    required
-                    autocomplete="off"
-                >
-                <button type="submit" class="px-6 py-2 bg-gradient-to-r from-indigo-600 to-purple-600 text-white font-bold hover:from-indigo-700 hover:to-purple-700 shadow-lg hover:shadow-xl transition-all" style="border-radius: 0.75rem;">
-                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 19l9 2-9-18-9 18 9-2zm0 0v-8"></path>
-                    </svg>
-                </button>
-            </form>
+        <!-- Info Footer -->
+        <div class="mt-6 text-center">
+            <p class="text-sm text-slate-500">
+                <svg class="w-4 h-4 inline-block mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/>
+                </svg>
+                Tiempo de respuesta promedio: <strong class="text-slate-700">bajo 10 minutos</strong>
+            </p>
         </div>
-        {% else %}
-        <div class="p-4 bg-slate-100 border-t border-slate-200 text-center">
-            <p class="text-slate-600 font-semibold">Esta conversación ha sido cerrada</p>
-        </div>
-        {% endif %}
     </div>
 </div>
+
+<style>
+@keyframes fade-in {
+    from {
+        opacity: 0;
+        transform: translateY(10px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+.animate-fade-in {
+    animation: fade-in 0.3s ease-out;
+}
+
+/* Custom scrollbar */
+#messages-container::-webkit-scrollbar {
+    width: 8px;
+}
+
+#messages-container::-webkit-scrollbar-track {
+    background: #f1f5f9;
+    border-radius: 10px;
+}
+
+#messages-container::-webkit-scrollbar-thumb {
+    background: #cbd5e1;
+    border-radius: 10px;
+}
+
+#messages-container::-webkit-scrollbar-thumb:hover {
+    background: #94a3b8;
+}
+</style>
 
 <script>
 const conversationId = {{ conversation.pk }};
@@ -106,14 +200,14 @@ let lastMessageId = {{ messages.last.id|default:0 }};
 let pollInterval;
 let isSending = false;
 
-// Sonido de notificación
+// Notification sound
 const notificationSound = new Audio('data:audio/wav;base64,UklGRnoGAABXQVZFZm10IBAAAAABAAEAQB8AAEAfAAABAAgAZGF0YQoGAACBhYqFbF1fdJivrJBhNjVgodDbq2EcBj+a2/LDciUFLIHO8tiJNwgZaLvt559NEAxQp+PwtmMcBjiR1/LMeSwFJHfH8N2QQAoUXrTp66hVFApGn+DyvmwhBjiR1/LMeSwFJHfH8N2QQAoUXrTp66hVFApGn+DyvmwhBjiR1/LMeSwFJHfH8N2QQAoUXrTp66hVFApGn+DyvmwhBjiR1/LMeSwFJHfH8N2QQAoUXrTp66hVFApGn+DyvmwhBjiR1/LMeSwFJHfH8N2QQAoUXrTp66hVFApGn+Dy');
 
-// Scroll al final al cargar
+// Scroll to bottom on load
 const messagesContainer = document.getElementById('messages-container');
 messagesContainer.scrollTop = messagesContainer.scrollHeight;
 
-// Enviar mensaje
+// Send message
 document.getElementById('message-form')?.addEventListener('submit', async function(e) {
     e.preventDefault();
     
@@ -144,13 +238,13 @@ document.getElementById('message-form')?.addEventListener('submit', async functi
             lastMessageId = Math.max(lastMessageId, data.message.id);
         }
     } catch (error) {
-        console.error('Error al enviar mensaje:', error);
+        console.error('Error sending message:', error);
     } finally {
         isSending = false;
     }
 });
 
-// Polling para nuevos mensajes
+// Poll for new messages
 function startPolling() {
     pollInterval = setInterval(async () => {
         try {
@@ -163,7 +257,7 @@ function startPolling() {
                         addMessageToUI(msg);
                         lastMessageId = msg.id;
                         
-                        // Notificación sonora para admin cuando recibe mensaje del cliente
+                        // Sound notification for staff when receiving client message
                         if (isStaff && msg.sender_id !== currentUserId) {
                             playNotification();
                             showDesktopNotification(msg);
@@ -172,32 +266,35 @@ function startPolling() {
                 });
             }
         } catch (error) {
-            console.error('Error al obtener mensajes:', error);
+            console.error('Error fetching messages:', error);
         }
-    }, 4000); // Cada 4 segundos
+    }, 4000); // Every 4 seconds
 }
 
 function addMessageToUI(message) {
-    // Verificar que el mensaje no exista ya
+    // Check if message already exists
     if (document.querySelector(`[data-message-id="${message.id}"]`)) {
         return;
     }
     
     const isOwn = message.sender_id === currentUserId;
     const messageHTML = `
-        <div class="message flex ${isOwn ? 'justify-end' : 'justify-start'}" data-message-id="${message.id}">
-            <div class="max-w-xs lg:max-w-md">
-                <div class="flex items-end gap-2 ${isOwn ? 'flex-row-reverse' : ''}">
-                    <div class="flex-shrink-0 w-8 h-8 ${message.is_staff ? 'bg-gradient-to-br from-indigo-600 to-purple-600' : 'bg-slate-400'} text-white flex items-center justify-center font-bold text-xs" style="border-radius: 0.5rem;">
+        <div class="message flex ${isOwn ? 'justify-end' : 'justify-start'} animate-fade-in" data-message-id="${message.id}">
+            <div class="max-w-lg">
+                <div class="flex items-end gap-3 ${isOwn ? 'flex-row-reverse' : ''}">
+                    <div class="flex-shrink-0 w-10 h-10 ${message.is_staff ? 'bg-gradient-to-br from-blue-600 to-indigo-600' : 'bg-gradient-to-br from-slate-400 to-slate-500'} rounded-xl flex items-center justify-center text-white font-bold text-sm shadow-lg">
                         ${message.sender.charAt(0).toUpperCase()}
                     </div>
-                    <div>
-                        <div class="${isOwn ? 'bg-gradient-to-r from-indigo-600 to-purple-600 text-white' : 'bg-white border border-slate-200'} px-4 py-2 shadow-sm" style="border-radius: 1rem; ${isOwn ? 'border-bottom-right-radius: 0.25rem;' : 'border-bottom-left-radius: 0.25rem;'}">
-                            <p class="text-sm">${escapeHtml(message.message)}</p>
+                    <div class="relative group">
+                        <div class="${isOwn ? 'bg-gradient-to-br from-blue-600 to-indigo-600 text-white' : 'bg-white border-2 border-slate-100 text-slate-800'} px-5 py-3.5 shadow-lg rounded-2xl ${isOwn ? 'rounded-br-md' : 'rounded-bl-md'} transform transition-all group-hover:scale-[1.02]">
+                            <p class="text-sm leading-relaxed whitespace-pre-wrap break-words">${escapeHtml(message.message)}</p>
                         </div>
-                        <p class="text-xs text-slate-500 mt-1 ${isOwn ? 'text-right' : ''}">
-                            ${message.created_at}
-                        </p>
+                        <div class="flex items-center gap-1.5 mt-1.5 ${isOwn ? 'justify-end' : ''}">
+                            <svg class="w-3.5 h-3.5 text-slate-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"/>
+                            </svg>
+                            <span class="text-xs font-medium text-slate-500">${message.created_at}</span>
+                        </div>
                     </div>
                 </div>
             </div>
@@ -216,9 +313,9 @@ function escapeHtml(text) {
 
 function playNotification() {
     try {
-        notificationSound.play().catch(e => console.log('No se pudo reproducir sonido:', e));
+        notificationSound.play().catch(e => console.log('Could not play sound:', e));
     } catch (e) {
-        console.log('Error al reproducir sonido:', e);
+        console.log('Error playing sound:', e);
     }
 }
 
@@ -254,20 +351,20 @@ async function closeConversation() {
             window.location.href = '{% url "chat:my_conversations" %}';
         }
     } catch (error) {
-        console.error('Error al cerrar conversación:', error);
+        console.error('Error closing conversation:', error);
     }
 }
 
-// Solicitar permisos de notificación al cargar (solo para staff)
+// Request notification permissions on load (staff only)
 if (isStaff && 'Notification' in window && Notification.permission === 'default') {
     Notification.requestPermission();
 }
 
-// Iniciar polling si la conversación está activa
+// Start polling if conversation is active
 {% if not conversation.is_resolved %}
 startPolling();
 
-// Detener polling al salir de la página
+// Stop polling when leaving page
 window.addEventListener('beforeunload', () => {
     if (pollInterval) clearInterval(pollInterval);
 });

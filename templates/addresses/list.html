@@ -1,17 +1,168 @@
 {% extends "base.html" %}
+{% load static %}
 
-{% block title %}Mis direcciones{% endblock %}
+{% block title %}Mis Direcciones — Mi Tienda{% endblock %}
 
 {% block content %}
-<h2>Mis direcciones</h2>
-<a class="btn btn-primary mb-3" href="{% url 'addresses:create' %}">Añadir dirección</a>
-{% if addresses %}
-  <ul class="list-group">
-    {% for addr in addresses %}
-      <li class="list-group-item">{{ addr }} {% if addr.is_default %}<span class="badge bg-success">Por defecto</span>{% endif %}</li>
-    {% endfor %}
-  </ul>
-{% else %}
-  <div class="alert alert-info">No tienes direcciones todavía.</div>
-{% endif %}
+<div class="min-h-screen bg-gradient-to-br from-slate-50 via-white to-indigo-50 py-12 px-4">
+    <div class="max-w-6xl mx-auto">
+        
+        <!-- Header -->
+        <div class="mb-12 text-center">
+            <div class="inline-flex items-center justify-center w-20 h-20 bg-gradient-to-br from-indigo-600 to-purple-600 rounded-3xl shadow-2xl shadow-indigo-200 mb-6">
+                <svg class="w-10 h-10 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"/>
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"/>
+                </svg>
+            </div>
+            
+            <h1 class="text-5xl font-black text-slate-900 mb-4 tracking-tight">
+                Mis Direcciones
+            </h1>
+            <p class="text-xl text-slate-600 font-medium">
+                Gestiona tus direcciones de envío
+            </p>
+        </div>
+
+        <!-- Add New Address Button -->
+        <div class="mb-8">
+            <a href="{% url 'addresses:create' %}" 
+               class="inline-flex items-center gap-3 px-8 py-4 bg-gradient-to-r from-indigo-600 to-purple-600 text-white font-black rounded-2xl shadow-lg shadow-indigo-200 hover:shadow-xl hover:from-indigo-700 hover:to-purple-700 transition-all transform hover:scale-105 active:scale-95">
+                <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/>
+                </svg>
+                <span>Agregar Nueva Dirección</span>
+            </a>
+        </div>
+
+        <!-- Addresses List -->
+        {% if addresses %}
+        <div class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6">
+            {% for addr in addresses %}
+            <div class="group relative bg-white rounded-3xl shadow-lg hover:shadow-2xl transition-all duration-300 overflow-hidden border-2 {% if addr.is_default %}border-indigo-500 ring-4 ring-indigo-100{% else %}border-slate-100 hover:border-indigo-200{% endif %}">
+                
+                <!-- Default Badge -->
+                {% if addr.is_default %}
+                <div class="absolute top-0 right-0">
+                    <div class="bg-gradient-to-br from-indigo-500 to-purple-600 text-white px-4 py-2 rounded-bl-2xl flex items-center gap-2 shadow-lg">
+                        <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
+                            <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z"/>
+                        </svg>
+                        <span class="text-xs font-black uppercase">Principal</span>
+                    </div>
+                </div>
+                {% endif %}
+
+                <!-- Card Content -->
+                <div class="p-8 {% if addr.is_default %}pt-16{% endif %}">
+                    <!-- Icon -->
+                    <div class="w-14 h-14 bg-gradient-to-br from-indigo-100 to-purple-100 rounded-2xl flex items-center justify-center mb-6 group-hover:scale-110 transition-transform">
+                        <svg class="w-7 h-7 text-indigo-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6"/>
+                        </svg>
+                    </div>
+
+                    <!-- Address Details -->
+                    <div class="space-y-3 mb-6">
+                        <div>
+                            <p class="text-xs font-bold text-slate-500 uppercase tracking-wider mb-1">Dirección</p>
+                            <p class="text-lg font-black text-slate-900">{{ addr.street }}</p>
+                        </div>
+                        
+                        <div class="grid grid-cols-2 gap-4">
+                            <div>
+                                <p class="text-xs font-bold text-slate-500 uppercase tracking-wider mb-1">Ciudad</p>
+                                <p class="text-sm font-bold text-slate-700">{{ addr.city }}</p>
+                            </div>
+                            <div>
+                                <p class="text-xs font-bold text-slate-500 uppercase tracking-wider mb-1">Provincia</p>
+                                <p class="text-sm font-bold text-slate-700">{{ addr.province }}</p>
+                            </div>
+                        </div>
+
+                        {% if addr.reference %}
+                        <div>
+                            <p class="text-xs font-bold text-slate-500 uppercase tracking-wider mb-1">Referencia</p>
+                            <p class="text-sm text-slate-600 italic">{{ addr.reference }}</p>
+                        </div>
+                        {% endif %}
+
+                        <div>
+                            <p class="text-xs font-bold text-slate-500 uppercase tracking-wider mb-1">Teléfono</p>
+                            <p class="text-sm font-bold text-slate-700 flex items-center gap-2">
+                                <svg class="w-4 h-4 text-green-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 5a2 2 0 012-2h3.28a1 1 0 01.948.684l1.498 4.493a1 1 0 01-.502 1.21l-2.257 1.13a11.042 11.042 0 005.516 5.516l1.13-2.257a1 1 0 011.21-.502l4.493 1.498a1 1 0 01.684.949V19a2 2 0 01-2 2h-1C9.716 21 3 14.284 3 6V5z"/>
+                                </svg>
+                                {{ addr.phone }}
+                            </p>
+                        </div>
+                    </div>
+
+                    <!-- Actions -->
+                    <div class="flex gap-2">
+                        {% if not addr.is_default %}
+                        <form method="post" action="{% url 'addresses:set_default' addr.id %}" class="flex-1">
+                            {% csrf_token %}
+                            <button type="submit" class="w-full px-4 py-3 bg-slate-100 hover:bg-indigo-100 text-slate-700 hover:text-indigo-700 font-bold rounded-xl transition-all transform hover:scale-105 active:scale-95 text-sm">
+                                Hacer Principal
+                            </button>
+                        </form>
+                        {% endif %}
+                        
+                        <form method="post" action="{% url 'addresses:delete' addr.id %}" onsubmit="return confirm('¿Eliminar esta dirección?')" class="{% if not addr.is_default %}flex-shrink-0{% else %}flex-1{% endif %}">
+                            {% csrf_token %}
+                            <button type="submit" class="w-full px-4 py-3 bg-red-50 hover:bg-red-100 text-red-600 font-bold rounded-xl transition-all transform hover:scale-105 active:scale-95 text-sm flex items-center justify-center gap-2">
+                                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/>
+                                </svg>
+                                Eliminar
+                            </button>
+                        </form>
+                    </div>
+                </div>
+
+                <!-- Hover Effect Border -->
+                <div class="absolute inset-0 rounded-3xl border-2 border-transparent group-hover:border-indigo-300 transition-colors pointer-events-none"></div>
+            </div>
+            {% endfor %}
+        </div>
+        {% else %}
+        <!-- Empty State -->
+        <div class="text-center py-24">
+            <div class="inline-flex items-center justify-center w-32 h-32 bg-gradient-to-br from-slate-100 to-slate-200 rounded-full mb-8">
+                <svg class="w-16 h-16 text-slate-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"/>
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"/>
+                </svg>
+            </div>
+            
+            <h3 class="text-3xl font-black text-slate-900 mb-3">
+                No tienes direcciones guardadas
+            </h3>
+            <p class="text-lg text-slate-600 mb-8 max-w-md mx-auto">
+                Agrega tu primera dirección para poder realizar pedidos y recibir tus productos.
+            </p>
+            
+            <a href="{% url 'addresses:create' %}" 
+               class="inline-flex items-center gap-3 px-8 py-4 bg-gradient-to-r from-indigo-600 to-purple-600 text-white font-black rounded-2xl shadow-lg shadow-indigo-200 hover:shadow-xl hover:from-indigo-700 hover:to-purple-700 transition-all transform hover:scale-105 active:scale-95">
+                <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/>
+                </svg>
+                <span>Agregar Primera Dirección</span>
+            </a>
+        </div>
+        {% endif %}
+
+        <!-- Back Button -->
+        <div class="mt-12 text-center">
+            <a href="{% url 'users:profile' %}" 
+               class="inline-flex items-center gap-2 text-slate-600 hover:text-indigo-600 font-bold transition-colors">
+                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18"/>
+                </svg>
+                Volver a Mi Perfil
+            </a>
+        </div>
+    </div>
+</div>
 {% endblock %}

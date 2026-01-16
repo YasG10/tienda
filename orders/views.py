@@ -200,10 +200,11 @@ def telegram_webhook(request):
                     # Si falla editar, no pasa nada. El estado ya se guardó.
                     pass
 
-            # Notificar al cliente en el chat interno
+            # Notificar al cliente en el chat interno Y crear notificación
             try:
                 from chat.models import ChatConversation, ChatMessage
                 from django.contrib.auth import get_user_model
+                from core.models import Notification
                 
                 User = get_user_model()
                 admin_user = User.objects.filter(is_staff=True).first()
@@ -237,6 +238,15 @@ def telegram_webhook(request):
                         conversation=conversation,
                         sender=admin_user,
                         message=message_text
+                    )
+                    
+                    # Crear notificación en el sistema
+                    Notification.objects.create(
+                        user=order.user,
+                        notification_type='order_status',
+                        title=f'Pedido #{order.id} actualizado',
+                        message=f'Tu pedido ha cambiado a: {status_display}',
+                        link=f'/accounts/orders/'
                     )
             except Exception:
                 # Si falla la notificación al chat, no importa

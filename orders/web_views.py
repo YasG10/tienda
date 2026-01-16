@@ -80,14 +80,45 @@ def checkout_view(request):
     # GET: show form with user's addresses
     if request.method == 'GET':
         addresses = Address.objects.filter(user=request.user)
-        # If user has no addresses, redirect them to create one
-        if not addresses.exists():
-            return redirect('addresses:create')
+        # Allow checkout even without addresses (can create one inline)
         return render(request, 'order/checkout.html', {'addresses': addresses})
 
     # POST: attempt to create order using OrderService
     address_id = request.POST.get('address_id')
     notes = request.POST.get('notes', '')
+
+    # If no address_id, check if user is creating a new address inline
+    if not address_id:
+        province = request.POST.get('province', '').strip()
+        city = request.POST.get('city', '').strip()
+        street = request.POST.get('street', '').strip()
+        phone = request.POST.get('phone', '').strip()
+        reference = request.POST.get('reference', '').strip()
+        is_default = request.POST.get('is_default') == 'on'
+
+        # If all fields provided, create the address
+        if province and city and street and phone:
+            # Unset previous defaults if this one is default
+            if is_default:
+                Address.objects.filter(user=request.user).update(is_default=False)
+            
+            new_address = Address.objects.create(
+                user=request.user,
+                province=province,
+                city=city,
+                street=street,
+                phone=phone,
+                reference=reference,
+                is_default=is_default
+            )
+            address_id = new_address.id
+        else:
+            # No address selected and no new address data
+            addresses = Address.objects.filter(user=request.user)
+            return render(request, 'order/checkout.html', {
+                'addresses': addresses, 
+                'error': 'Por favor, selecciona una dirección o completa los datos de envío.'
+            })
 
     validated_data = {
         'address_id': int(address_id) if address_id else None,
